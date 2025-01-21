@@ -6,16 +6,145 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgres"
   url      = env("DATABASE_URL")
 }
 
-model Sample {
-  id        Int      @id @default(autoincrement())
-  name      String
-  code      String   @unique
+enum Status {
+  PendingPayment
+  PendingAdminConfirmation
+  Done
+  Rejected
+  Expired
+  Canceled
+}
+
+model Organizer {
+  id              String   @id @default(cuid())
+  email           String
+  password        String   @unique
+  full_name       String
+  profile_picture String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  events          Event[]
+
+  @@map("organizers")
+}
+
+model Event {
+  id           String       @id @default(cuid())
+  organizer_id String
+  organizer    Organizer    @relation(fields: [organizer_id], references: [id])
+  category_id  String
+  category     Category     @relation(fields: [category_id], references: [id])
+  title        String
+  start_date   DateTime
+  end_date     DateTime
+  description  String
+  picture      String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  ticket_types TicketType[]
+  promotions   Promotion[]
+  reviews      Review[]
+
+  @@map("events")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  label     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  events    Event[]
 
-  @@map("samples") // if you want to use snake_case format
+  @@map("categories")
+}
+
+model TicketType {
+  id              String        @id @default(cuid())
+  event_id        String
+  event           Event         @relation(fields: [event_id], references: [id])
+  title           String
+  price           Decimal       @db.Decimal(10, 2)
+  available_seats Int
+  start_date      DateTime
+  end_date        DateTime
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  carts           Cart[]
+  transactions    Transaction[]
+
+  @@map("ticket types")
+}
+
+model Promotion {
+  id         String   @id @default(cuid())
+  event_id   String
+  event      Event    @relation(fields: [event_id], references: [id])
+  code       String
+  amount     Decimal  @db.Decimal(10, 2)
+  start_date DateTime
+  end_date   DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("promotions")
+}
+
+model Customer {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  password        String        
+  full_name       String
+  profile_picture String?
+  points          Int
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  carts           Cart[]
+  transactions    Transaction[]
+
+  @@map("customers")
+}
+
+model Cart {
+  id             String     @id @default(cuid())
+  customer_id    String
+  customer       Customer   @relation(fields: [customer_id], references: [id])
+  ticket_type_id String
+  ticket_type    TicketType @relation(fields: [ticket_type_id], references: [id])
+  quantity       Int
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@map("carts")
+}
+
+model Transaction {
+  id                       String     @id @default(cuid())
+  customer_id              String
+  customer                 Customer   @relation(fields: [customer_id], references: [id])
+  ticket_type_id           String
+  ticket_type              TicketType @relation(fields: [ticket_type_id], references: [id])
+  quantity                 Int
+  status                   Status
+  payment_proof            String
+  payment_proof_expiration DateTime
+  acceptance_expiration    DateTime
+  createdAt                DateTime   @default(now())
+  updatedAt                DateTime   @updatedAt
+  review                   Review?
+}
+
+model Review {
+  id             String      @id @default(cuid())
+  transaction_id String      @unique
+  transaction    Transaction @relation(fields: [transaction_id], references: [id])
+  event_id       String
+  event          Event       @relation(fields: [event_id], references: [id])
+  rating         Int
+  description    String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 }
