@@ -19,132 +19,116 @@ enum Status {
   Canceled
 }
 
-model Organizer {
-  id              String   @id @default(cuid())
-  email           String
-  password        String   @unique
-  full_name       String
-  profile_picture String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  events          Event[]
+enum Role {
+  Organizer
+  Customer
+}
 
-  @@map("organizers")
+model User {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  password        String
+  full_name       String
+  role            Role     @default(Customer)
+  points          Int
+  profile_picture String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  events       Event[]
+  transactions Transaction[]
+
+  @@map("users")
 }
 
 model Event {
-  id           String       @id @default(cuid())
-  organizer_id String
-  organizer    Organizer    @relation(fields: [organizer_id], references: [id])
-  category_id  String
-  category     Category     @relation(fields: [category_id], references: [id])
-  title        String
-  start_date   DateTime
-  end_date     DateTime
-  description  String
-  picture      String
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id              String   @id @default(uuid())
+  organizer_id    String
+  organizer       User     @relation(fields: [organizer_id], references: [id])
+  category_id     String
+  category        Category @relation(fields: [category_id], references: [id])
+  title           String
+  location        String
+  start_date      DateTime
+  end_date        DateTime
+  description     String
+  profile_picture String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
   ticket_types TicketType[]
   promotions   Promotion[]
-  reviews      Review[]
+  review       Review[]
 
   @@map("events")
 }
 
 model Category {
-  id        String   @id @default(cuid())
-  label     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  events    Event[]
+  id         String   @id @default(uuid())
+  label      String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  events Event[]
 
   @@map("categories")
 }
 
 model TicketType {
-  id              String        @id @default(cuid())
+  id              String   @id @default(uuid())
   event_id        String
-  event           Event         @relation(fields: [event_id], references: [id])
+  event           Event    @relation(fields: [event_id], references: [id])
   title           String
-  price           Decimal       @db.Decimal(10, 2)
+  price           Int
   available_seats Int
   start_date      DateTime
   end_date        DateTime
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  carts           Cart[]
-  transactions    Transaction[]
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
-  @@map("ticket types")
+  @@map("ticket_types")
 }
 
 model Promotion {
-  id         String   @id @default(cuid())
+  id         String   @id @default(uuid())
   event_id   String
   event      Event    @relation(fields: [event_id], references: [id])
   code       String
-  amount     Decimal  @db.Decimal(10, 2)
+  amount     Int
   start_date DateTime
   end_date   DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("promotions")
 }
 
-model Customer {
-  id              String        @id @default(cuid())
-  email           String        @unique
-  password        String        
-  full_name       String
-  profile_picture String?
-  points          Int
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  carts           Cart[]
-  transactions    Transaction[]
-
-  @@map("customers")
-}
-
-model Cart {
-  id             String     @id @default(cuid())
+model Review {
+  id             String   @id @default(uuid())
   customer_id    String
-  customer       Customer   @relation(fields: [customer_id], references: [id])
-  ticket_type_id String
-  ticket_type    TicketType @relation(fields: [ticket_type_id], references: [id])
-  quantity       Int
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  transaction_id String
+  event_id       String
+  event          Event    @relation(fields: [event_id], references: [id])
+  rating         Int
+  description    String
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
-  @@map("carts")
+  @@map("reviews")
 }
 
 model Transaction {
-  id                       String     @id @default(cuid())
-  customer_id              String
-  customer                 Customer   @relation(fields: [customer_id], references: [id])
-  ticket_type_id           String
-  ticket_type              TicketType @relation(fields: [ticket_type_id], references: [id])
-  quantity                 Int
-  status                   Status
-  payment_proof            String
-  payment_proof_expiration DateTime
-  acceptance_expiration    DateTime
-  createdAt                DateTime   @default(now())
-  updatedAt                DateTime   @updatedAt
-  review                   Review?
-}
+  id                     String   @id @default(uuid())
+  customer_id            String
+  customer               User     @relation(fields: [customer_id], references: [id])
+  ticket_type_id         String
+  quantity               Int
+  status                 Status   @default(PendingPayment)
+  payment_proof          String?
+  payment_proof_deadline DateTime
+  acceptance_deadline    DateTime
+  created_at             DateTime @default(now())
+  updated_at             DateTime @updatedAt
 
-model Review {
-  id             String      @id @default(cuid())
-  transaction_id String      @unique
-  transaction    Transaction @relation(fields: [transaction_id], references: [id])
-  event_id       String
-  event          Event       @relation(fields: [event_id], references: [id])
-  rating         Int
-  description    String
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  @@map("transactions")
 }

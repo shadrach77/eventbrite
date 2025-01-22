@@ -1,24 +1,22 @@
-"use client";
+'use client';
 
-import React from "react";
-import Google from "@/../public/Google.svg";
-import Facebook from "@/../public/Facebook.svg";
-import { useFormik } from "formik";
+import React from 'react';
+import { useFormik } from 'formik';
 
-import Image from "next/image";
-import { signIn } from "next-auth/react";
+import Image from 'next/image';
+import { signIn } from 'next-auth/react';
 export default function Page() {
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
     onSubmit: async (values) => {
       try {
-        await signIn("credentials", {
+        await signIn('credentials', {
           email: values.email,
           password: values.password,
-          redirectTo: "/",
+          redirectTo: '/',
         });
       } catch (error) {
         console.log(error);
@@ -81,28 +79,6 @@ export default function Page() {
           Or
           <hr className="w-full h-[1px] bg-[#CFDFE2] border-0 " />
         </div>
-
-        <button className=" bg-[#F3F9FA] p-4 rounded-[12px] flex justify-center items-center gap-4">
-          <Image
-            src={Google}
-            height={28}
-            width={28}
-            className="w-7 h-7"
-            alt="google "
-          ></Image>{" "}
-          Sign in with Google
-        </button>
-
-        <button className=" bg-[#F3F9FA] p-4 rounded-[12px] flex justify-center items-center gap-4">
-          <Image
-            src={Facebook}
-            height={28}
-            width={28}
-            className="w-7 h-7"
-            alt="google "
-          ></Image>{" "}
-          Sign in with Facebook
-        </button>
       </div>
 
       <center>

@@ -10,10 +10,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Credentials({
       async authorize(credentials) {
         try {
-          const response = await fetch(
-            'http://localhost:2000/users?email=' +
+          const response: any = await fetch(
+            'http://localhost:8000/api/auth/profile?email=' +
               credentials.email +
-              '&password' +
+              '&password=' +
               credentials.password,
             {
               method: 'GET',
@@ -23,11 +23,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
           );
 
-          const data = (await response.json()) as User[];
-          if (!data.length) {
-            throw new Error('user not found');
+          // previously had 'as User[]'
+          const data = await response.json();
+
+          console.log("content of 'data'", data);
+
+          if (!data) {
+            throw new Error('User not found');
           }
-          const user = data[0];
+          const user = data.data;
           return user;
         } catch (error) {
           console.log(error);
