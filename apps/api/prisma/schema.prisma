@@ -30,7 +30,7 @@ model User {
   password        String
   full_name       String
   role            Role     @default(Customer)
-  points          Int
+  points          Int      @default(0)
   profile_picture String?
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
@@ -42,19 +42,21 @@ model User {
 }
 
 model Event {
-  id              String   @id @default(uuid())
-  organizer_id    String
-  organizer       User     @relation(fields: [organizer_id], references: [id])
-  category_id     String
-  category        Category @relation(fields: [category_id], references: [id])
-  title           String
-  location        String
-  start_date      DateTime
-  end_date        DateTime
-  description     String
-  profile_picture String
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  id             String   @id @default(uuid())
+  organizer_id   String
+  organizer      User     @relation(fields: [organizer_id], references: [id])
+  category_id    String
+  category       Category @relation(fields: [category_id], references: [id])
+  location_id    String
+  location       Location @relation(fields: [location_id], references: [id])
+  title          String
+  start_date     DateTime
+  end_date       DateTime
+  description    String
+  average_rating Int?
+  picture        String?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
   ticket_types TicketType[]
   promotions   Promotion[]
@@ -72,6 +74,17 @@ model Category {
   events Event[]
 
   @@map("categories")
+}
+
+model Location {
+  id         String   @id @default(uuid())
+  label      String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  events Event[]
+
+  @@map("locations")
 }
 
 model TicketType {
@@ -127,6 +140,8 @@ model Transaction {
   payment_proof          String?
   payment_proof_deadline DateTime
   acceptance_deadline    DateTime
+  points_used            Int
+  promotion_used         String?
   created_at             DateTime @default(now())
   updated_at             DateTime @updatedAt
 
