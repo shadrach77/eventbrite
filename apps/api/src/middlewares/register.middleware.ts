@@ -1,18 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 
-const loginSchema = z.object({
+const registerSchema = z.object({
   email: z.string().email(),
-  password: z.string(),
+  password: z.string().min(6),
+  full_name: z.string(),
+  role: z.enum(['ORGANIZER', 'CUSTOMER']),
+  points: z.number().optional(),
+  profile_picture: z.string().optional(),
 });
 
-export const validateLoginBody = (
+export const validateRegisterBody = (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    loginSchema.parse(req.body);
+    registerSchema.parse(req.body);
     next();
   } catch (error) {
     return res.status(400).json({

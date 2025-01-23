@@ -1,4 +1,6 @@
 import { AuthController } from '@/controllers/auth.controller';
+import { validateLoginBody } from '@/middlewares/login.middleware';
+import { validateRegisterBody } from '@/middlewares/register.middleware';
 import { Router } from 'express';
 
 export class AuthRouter {
@@ -12,7 +14,12 @@ export class AuthRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/profile', this.authController.login);
+    this.router.post('/profile', validateLoginBody, this.authController.login);
+    this.router.post(
+      '/profile/new',
+      validateRegisterBody,
+      this.authController.register,
+    );
   }
 
   getRouter(): Router {

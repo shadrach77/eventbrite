@@ -1,27 +1,66 @@
+import { hashedPassword } from '@/helpers/bcrypt';
 import { ErrorHandler } from '@/helpers/error.handler';
+import { getUserByEmail } from '@/helpers/user.prisma';
 import prisma from '@/prisma';
+import { compare } from 'bcrypt';
 import { Request, Response, NextFunction } from 'express';
-export class AuthController {
-  async login(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { email, password } = req.query;
 
-      if (!email || !password) {
-        throw new ErrorHandler(
-          'Incomplete user data. Please complete user data to login.',
-          400,
-        );
+export class AuthController {
+  async register(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, password, full_name, role, points, profile_picture } =
+        req.body;
+
+      const existingUser = await getUserByEmail(String(email));
+
+      if (existingUser) {
+        return res.status(400).send({
+          message: `User with email ${email} has already been registered. Please log in instead.`,
+        });
       }
 
-      const user = await prisma.user.findFirst({
-        where: {
-          email: String(email),
-          password: String(password),
+      let initialPoints = null;
+
+      if (role === 'CUSTOMER') {
+        initialPoints = 0;
+      }
+
+      const user = await prisma.user.create({
+        data: {
+          email,
+          password: await hashedPassword(password),
+          full_name,
+          role,
+          points: initialPoints,
+          profile_picture,
         },
       });
 
+      return res.status(200).send({
+        message: `Registeration successful.`,
+        data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async login(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, password } = req.body;
+
+      const user = await getUserByEmail(String(email));
+
       if (!user) {
-        throw new ErrorHandler('No events found', 404);
+        return res.status(400).send({
+          message: `No account with email ${email} is associated to our database. Please register to create an account, then com back to log in.`,
+        });
+      }
+
+      if (!(await compare(String(password), user.password as string))) {
+        return res.status(400).send({
+          message: `Incorrect password. Please try again.`,
+        });
       }
 
       return res.send({

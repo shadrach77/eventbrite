@@ -2,18 +2,29 @@
 
 import React from 'react';
 import { useFormik } from 'formik';
-
-import Image from 'next/image';
 import { signIn } from 'next-auth/react';
+import Link from 'next/link';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object({
+  email: Yup.string()
+    .email('Please enter a valid email format')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters long')
+    .required('Password is required'),
+});
+
 export default function Page() {
   const formik = useFormik({
     initialValues: {
       email: '',
       password: '',
     },
+    validationSchema,
     onSubmit: async (values) => {
       try {
-        await signIn('credentials', {
+        const response = await signIn('credentials', {
           email: values.email,
           password: values.password,
           redirectTo: '/',
@@ -26,7 +37,7 @@ export default function Page() {
   return (
     <div className="w-full max-w-96 flex flex-col gap-12">
       <div>
-        <h1 className=" font-semibold text-3xl">Welcome Back</h1>
+        <h1 className=" font-semibold text-3xl text-blue-200">Welcome Back</h1>
         <p className="mt-4">
           {`Today is a new day. It's your day. You shape it. Sign in to start
           managing your projects.`}
@@ -45,6 +56,9 @@ export default function Page() {
             value={formik.values.email}
             onChange={formik.handleChange}
           />
+          {formik.touched.email && formik.errors.email && (
+            <div className="text-red-500 text-sm">{formik.errors.email}</div>
+          )}
         </div>
 
         <div className="flex flex-col gap-6">
@@ -59,6 +73,11 @@ export default function Page() {
               value={formik.values.password}
               onChange={formik.handleChange}
             />
+            {formik.touched.password && formik.errors.password && (
+              <div className="text-red-500 text-sm">
+                {formik.errors.password}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end">
@@ -84,9 +103,9 @@ export default function Page() {
       <center>
         {`Don't have an account? `}
 
-        <a href="#" className="text-[#1E4AE9]">
+        <Link href={'/register'} className="text-[#1E4AE9]">
           Sign Up
-        </a>
+        </Link>
       </center>
     </div>
   );

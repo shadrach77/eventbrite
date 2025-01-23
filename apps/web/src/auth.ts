@@ -11,22 +11,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         try {
           const response: any = await fetch(
-            'http://localhost:8000/api/auth/profile?email=' +
-              credentials.email +
-              '&password=' +
-              credentials.password,
+            'http://localhost:8000/api/auth/profile',
             {
-              method: 'GET',
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
               next: {
                 revalidate: 0,
               },
+              body: JSON.stringify({
+                email: credentials.email,
+                password: credentials.password,
+              }),
             },
           );
 
           // previously had 'as User[]'
           const data = await response.json();
 
-          console.log("content of 'data'", data);
+          console.log("content of 'data' here => ", data);
 
           if (!data) {
             throw new Error('User not found');

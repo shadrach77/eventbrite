@@ -1,5 +1,6 @@
 'use client';
 import { useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -20,6 +21,13 @@ export default function Home() {
     <div>
       <h1>Welcome, {session.user?.name}</h1>
       <p>Your email: {session.user?.email}</p>
+      <button
+        onClick={async () => {
+          await signOut();
+        }}
+      >
+        Sign Out
+      </button>
     </div>
   );
 }
