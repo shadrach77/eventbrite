@@ -34,13 +34,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             throw new Error('User not found');
           }
 
-          const token = response.headers.get('Authorization')?.split(' ')[1];
+          const jwt_token = response.headers
+            .get('Authorization')
+            ?.split(' ')[1];
 
-          if (!token) {
+          if (!jwt_token) {
             throw new Error('Authentication failed due to missing JWT Token');
           }
 
           const user = data.data;
+          user.authentication_token = jwt_token;
 
           return {
             id: user.id,
@@ -51,7 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             profile_picture: user.profile_picture,
             created_at: user.created_at,
             updated_at: user.updated_at,
-            token: token,
+            authentication_token: user.authentication_token,
           };
         } catch (error) {
           console.log(error);
@@ -70,7 +73,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role;
         token.points = user.points;
         token.profile_picture = user.profile_picture;
-        token.authentication_token = token;
+        token.authentication_token = user.authentication_token;
         token.created_at = user.created_at;
         token.updated_at = user.updated_at;
       }

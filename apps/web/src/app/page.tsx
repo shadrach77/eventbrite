@@ -28,6 +28,7 @@ export default function Home() {
       <p>Your token: {session.user?.points}</p>
       <p>updated at: {session.user?.updated_at}</p>
       <p>pfp {session.user?.profile_picture}</p>
+      <p>Token: {session.user.authentication_token}</p>
       <button
         onClick={async () => {
           await signOut();
