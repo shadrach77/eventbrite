@@ -1,9 +1,12 @@
+import { JWT_TOKEN_SECRET } from '@/config';
 import { hashedPassword } from '@/helpers/bcrypt';
 import { ErrorHandler } from '@/helpers/error.handler';
 import { getUserByEmail } from '@/helpers/user.prisma';
+import { ILogin } from '@/interfaces/user.interface';
 import prisma from '@/prisma';
 import { compare } from 'bcrypt';
 import { Request, Response, NextFunction } from 'express';
+import { sign } from 'jsonwebtoken';
 
 export class AuthController {
   async register(req: Request, res: Response, next: NextFunction) {
@@ -49,7 +52,7 @@ export class AuthController {
     try {
       const { email, password } = req.body;
 
-      const user = await getUserByEmail(String(email));
+      const user = (await getUserByEmail(String(email))) as ILogin;
 
       if (!user) {
         return res.status(400).send({
@@ -63,8 +66,19 @@ export class AuthController {
         });
       }
 
-      return res.send({
-        message: `Login successful.`,
+      delete user.password;
+
+      // return res.send({
+      //   message: `Login successful.`,
+      //   data: user,
+      // });
+
+      const token = sign(user, JWT_TOKEN_SECRET, {
+        expiresIn: '20m',
+      });
+
+      return res.set('Authorization', `Bearer ${token}`).status(200).send({
+        message: 'Login successful',
         data: user,
       });
     } catch (error) {

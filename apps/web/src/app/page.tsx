@@ -12,15 +12,22 @@ export default function Home() {
   if (!session) {
     return (
       <p>
-        You are not logged in. <a href="/api/auth/signin">Sign in</a>
+        You are not logged in. <a href="/login">Sign in</a>
       </p>
     );
   }
 
   return (
     <div>
-      <h1>Welcome, {session.user?.name}</h1>
+      <h1>
+        Welcome, {session.user.id} {session.user.created_at}{' '}
+        {session.user.full_name} {session.user.points} {session.user.role}{' '}
+        {session.user.updated_at}
+      </h1>
       <p>Your email: {session.user?.email}</p>
+      <p>Your token: {session.user?.points}</p>
+      <p>updated at: {session.user?.updated_at}</p>
+      <p>pfp {session.user?.profile_picture}</p>
       <button
         onClick={async () => {
           await signOut();

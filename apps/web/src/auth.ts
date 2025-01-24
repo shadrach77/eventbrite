@@ -30,13 +30,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // previously had 'as User[]'
           const data = await response.json();
 
-          console.log("content of 'data' here => ", data);
-
           if (!data) {
             throw new Error('User not found');
           }
+
+          const token = response.headers.get('Authorization')?.split(' ')[1];
+
+          if (!token) {
+            throw new Error('Authentication failed due to missing JWT Token');
+          }
+
           const user = data.data;
-          return user;
+
+          return {
+            id: user.id,
+            email: user.email,
+            full_name: user.full_name,
+            role: user.role,
+            points: user.points,
+            profile_picture: user.profile_picture,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+            token: token,
+          };
         } catch (error) {
           console.log(error);
           return null;
@@ -47,20 +63,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        console.log('User before token => ', user);
         token.id = user.id;
-        token.name = user.name;
         token.email = user.email;
-        token.image = user.image;
+        token.full_name = user.full_name;
+        token.role = user.role;
+        token.points = user.points;
+        token.profile_picture = user.profile_picture;
+        token.created_at = user.created_at;
+        token.updated_at = user.updated_at;
       }
       return token;
     },
 
     async session({ session, token }) {
       if (token) {
+        console.log('Token before session => ', token);
         session.user.id = token.id as string;
         session.user.email = token.email as string;
-        session.user.image = token.image as string;
-        session.user.name = token.name as string;
+        session.user.profile_picture = token.profile_picture as string;
+        session.user.full_name = token.full_name as string;
+        session.user.role = token.role as 'CUSTOMER' | 'ORGANIZER';
+        session.user.points = Number(token.points);
+        session.user.created_at = token.created_at as string;
+        session.user.updated_at = token.updated_at as string;
       }
       return session;
     },
