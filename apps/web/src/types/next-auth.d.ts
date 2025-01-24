@@ -9,6 +9,7 @@ declare module 'next-auth' {
     role: 'CUSTOMER' | 'ORGANIZER';
     points?: number;
     profile_picture?: string;
+    authentication_token?: string;
     created_at: string;
     updated_at: string;
   }
@@ -20,6 +21,7 @@ declare module 'next-auth' {
       role: 'CUSTOMER' | 'ORGANIZER';
       points?: number;
       profile_picture?: string;
+      authentication_token?: string;
       created_at: string;
       updated_at: string;
     };

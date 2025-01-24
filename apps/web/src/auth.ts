@@ -70,6 +70,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role;
         token.points = user.points;
         token.profile_picture = user.profile_picture;
+        token.authentication_token = token;
         token.created_at = user.created_at;
         token.updated_at = user.updated_at;
       }
@@ -85,6 +86,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.full_name = token.full_name as string;
         session.user.role = token.role as 'CUSTOMER' | 'ORGANIZER';
         session.user.points = Number(token.points);
+        session.user.authentication_token =
+          token.authentication_token as string;
         session.user.created_at = token.created_at as string;
         session.user.updated_at = token.updated_at as string;
       }
