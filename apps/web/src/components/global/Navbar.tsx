@@ -1,11 +1,14 @@
+'use client';
+
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 import eventbriteSmallLogo from '@/media/logos/eventbrite-icon-small.svg';
 import eventbriteBigLogo from '@/media/logos/eventbrite-icon-big.svg';
 import searchIcon from '@/media/icons/search-icon.svg';
 import searchIconWhite from '@/media/icons/search-icon-white.svg';
 
 function Navbar() {
+  const [searchedValue, setSearchedValue] = useState('');
   return (
     <header className="flex justify-center items-center px-6 py-2 w-screen bg-red-200">
       <nav className="flex flex-col items-center w-full bg-green-200">
@@ -28,8 +31,12 @@ function Navbar() {
             ></Image>
             <input
               type="text"
+              value={searchedValue}
               placeholder="Search events"
               className="w-full h-full px-14 bg-secondaryBackground rounded-3xl"
+              onChange={(e) => {
+                setSearchedValue(e.target.value);
+              }}
             ></input>
             <div className="absolute right-1 top-1 h-8 w-8 flex justify-center items-center rounded-3xl bg-secondaryOrange ">
               <Image
@@ -58,7 +65,11 @@ function Navbar() {
           <input
             type="text"
             placeholder="Search events"
+            value={searchedValue}
             className="w-full h-full px-14 bg-secondaryBackground rounded-3xl"
+            onChange={(e) => {
+              setSearchedValue(e.target.value);
+            }}
           ></input>
           <div className="absolute right-1 top-1 h-8 w-8 flex justify-center items-center rounded-3xl bg-secondaryOrange ">
             <Image
