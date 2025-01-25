@@ -20,8 +20,10 @@ export default function Home() {
   }
 
   return (
-    <ScreenCenter>
-      <Navbar></Navbar>
-    </ScreenCenter>
+    <div className="w-screen flex justify-center min-w-[320px] overflow-x-scroll">
+      <ScreenCenter>
+        <Navbar></Navbar>
+      </ScreenCenter>
+    </div>
   );
 }
