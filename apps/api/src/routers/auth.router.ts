@@ -1,6 +1,11 @@
 import { AuthController } from '@/controllers/auth.controller';
 import { validateLoginBody } from '@/middlewares/login.middleware';
 import { validateRegisterBody } from '@/middlewares/register.middleware';
+import { verifyJwtMiddleware } from '@/middlewares/jwt.middleware';
+import {
+  verifyOrganizerRoleMiddleware,
+  verifyCustomerRoleMiddleware,
+} from '@/middlewares/role.middleware';
 import { Router } from 'express';
 
 export class AuthRouter {
@@ -19,6 +24,12 @@ export class AuthRouter {
       '/profile/new',
       validateRegisterBody,
       this.authController.register,
+    );
+    this.router.get(
+      '/test',
+      verifyJwtMiddleware,
+      verifyCustomerRoleMiddleware,
+      this.authController.test,
     );
   }
 

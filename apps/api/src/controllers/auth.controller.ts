@@ -11,8 +11,7 @@ import { sign } from 'jsonwebtoken';
 export class AuthController {
   async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password, full_name, role, points, profile_picture } =
-        req.body;
+      const { email, password, full_name, role, profile_picture } = req.body;
 
       const existingUser = await getUserByEmail(String(email));
 
@@ -84,5 +83,9 @@ export class AuthController {
     } catch (error) {
       next(error);
     }
+  }
+
+  async test(req: Request, res: Response, next: NextFunction) {
+    return res.send('This is a test controller.');
   }
 }
