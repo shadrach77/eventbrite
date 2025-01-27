@@ -76,9 +76,18 @@ function Navbar() {
               Contact Sales
             </div>
             {session ? (
-              <div className="whitespace-nowrap hidden lg:flex items-center h-full px-4 rounded-3xl bg-blue-200">
-                My Tickets
-              </div>
+              session.user.role === 'ORGANIZER' ? (
+                <Link
+                  href={'/dashboard'}
+                  className="whitespace-nowrap hidden lg:flex items-center h-full px-4 rounded-3xl bg-blue-200"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <div className="whitespace-nowrap hidden lg:flex items-center h-full px-4 rounded-3xl bg-blue-200">
+                  My Tickets
+                </div>
+              )
             ) : (
               <Link
                 href={'/sign-in'}
