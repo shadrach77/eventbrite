@@ -27,34 +27,6 @@ export default function Page() {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        try {
-          const response: any = await fetch(
-            'http://localhost:8000/api/auth/profile',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              next: {
-                revalidate: 0,
-              },
-              body: JSON.stringify({
-                email: values.email,
-                password: values.password,
-              }),
-            },
-          );
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            toast.error(data.message || 'Something went wrong!');
-          }
-        } catch (error) {
-          console.error(error);
-          toast.error('Network error. Please try again later.');
-        }
-
         const response = await signIn('credentials', {
           email: values.email,
           password: values.password,
