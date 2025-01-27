@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import prisma from '@/prisma';
 import { ErrorHandler } from '@/helpers/error.handler';
 
 export class EventController {
-  async getAllEvents(req: Request, res: Response) {
+  async getAllEvents(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await prisma.event.findMany();
 
@@ -16,7 +16,29 @@ export class EventController {
         data: data,
       });
     } catch (error) {
-      throw new Error(`Failed to fetch all events.`);
+      next(error);
+    }
+  }
+
+  async getAllMyEvents(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await prisma.event.findMany({
+        where: { organizer_id: req.user?.id },
+      });
+      res.status(200).send({
+        message: `Events for organizer with id ${req.user?.id} successfully fetched`,
+        data: data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createEvent(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { body } = req;
+    } catch (error) {
+      next(error);
     }
   }
 }
