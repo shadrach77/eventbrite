@@ -15,13 +15,19 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  if (!session?.user) {
+    if (req.nextUrl.pathname.includes('/dashboard')) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+  }
+
   if (session?.user.role === 'ORGANIZER') {
     if (req.nextUrl.pathname === '/') {
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
   }
   if (session?.user.role === 'CUSTOMER') {
-    if (req.nextUrl.pathname === '/dashboard') {
+    if (req.nextUrl.pathname.includes('/dashboard')) {
       return NextResponse.redirect(new URL('/', req.url));
     }
   }
