@@ -47,9 +47,7 @@ export default function Page() {
 
           const data = await response.json();
 
-          if (response.ok) {
-            toast.success(data.message || 'Registration successful!');
-          } else {
+          if (!response.ok) {
             toast.error(data.message || 'Something went wrong!');
           }
         } catch (error) {
