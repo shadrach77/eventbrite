@@ -27,6 +27,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
           );
 
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Invalid email or password');
+          }
+
           // previously had 'as User[]'
           const data = await response.json();
 

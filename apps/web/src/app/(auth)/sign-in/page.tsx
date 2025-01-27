@@ -5,7 +5,8 @@ import { useFormik } from 'formik';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import * as Yup from 'yup';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -17,6 +18,7 @@ const validationSchema = Yup.object({
 });
 
 export default function Page() {
+  const router = useRouter();
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -58,8 +60,15 @@ export default function Page() {
         const response = await signIn('credentials', {
           email: values.email,
           password: values.password,
+          redirect: false,
           redirectTo: '/',
         });
+
+        if (response?.error) {
+          toast.error('Email or Password is Incorrect');
+        } else {
+          router.push('/');
+        }
       } catch (error) {
         console.log(error);
       }
@@ -138,6 +147,7 @@ export default function Page() {
           Sign Up
         </Link>
       </center>
+      <Toaster richColors></Toaster>
     </div>
   );
 }
