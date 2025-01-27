@@ -81,6 +81,9 @@ export default function Page() {
             value={formik.values.email}
             onChange={formik.handleChange}
           />
+          {formik.touched.email && formik.errors.email && (
+            <div className="text-red-500 text-sm">{formik.errors.email}</div>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -94,6 +97,11 @@ export default function Page() {
             value={formik.values.full_name}
             onChange={formik.handleChange}
           />
+          {formik.touched.full_name && formik.errors.full_name && (
+            <div className="text-red-500 text-sm">
+              {formik.errors.full_name}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-6">
@@ -108,6 +116,11 @@ export default function Page() {
               value={formik.values.password}
               onChange={formik.handleChange}
             />
+            {formik.touched.password && formik.errors.password && (
+              <div className="text-red-500 text-sm">
+                {formik.errors.password}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -151,8 +164,8 @@ export default function Page() {
       <center>
         {`Already have an account? `}
 
-        <Link href={'/login'} className="text-[#1E4AE9]">
-          Log In
+        <Link href={'/sign-in'} className="text-[#1E4AE9]">
+          Sign In
         </Link>
 
         <Toaster richColors className=""></Toaster>

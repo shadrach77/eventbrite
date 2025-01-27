@@ -5,6 +5,7 @@ import { useFormik } from 'formik';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import * as Yup from 'yup';
+import { toast } from 'sonner';
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -24,6 +25,36 @@ export default function Page() {
     validationSchema,
     onSubmit: async (values) => {
       try {
+        try {
+          const response: any = await fetch(
+            'http://localhost:8000/api/auth/profile',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              next: {
+                revalidate: 0,
+              },
+              body: JSON.stringify({
+                email: values.email,
+                password: values.password,
+              }),
+            },
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            toast.success(data.message || 'Registration successful!');
+          } else {
+            toast.error(data.message || 'Something went wrong!');
+          }
+        } catch (error) {
+          console.error(error);
+          toast.error('Network error. Please try again later.');
+        }
+
         const response = await signIn('credentials', {
           email: values.email,
           password: values.password,
@@ -103,7 +134,7 @@ export default function Page() {
       <center>
         {`Don't have an account? `}
 
-        <Link href={'/register'} className="text-[#1E4AE9]">
+        <Link href={'/sign-up'} className="text-[#1E4AE9]">
           Sign Up
         </Link>
       </center>

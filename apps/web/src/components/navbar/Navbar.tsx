@@ -6,9 +6,13 @@ import eventbriteSmallLogo from '@/media/logos/eventbrite-icon-small.svg';
 import eventbriteBigLogo from '@/media/logos/eventbrite-icon-big.svg';
 import searchIcon from '@/media/icons/search-icon.svg';
 import searchIconWhite from '@/media/icons/search-icon-white.svg';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import NavbarProfile from './NavbarProfile';
 
 function Navbar() {
   const [searchedValue, setSearchedValue] = useState('');
+  const { data: session, status } = useSession();
   return (
     <header className="flex justify-center items-center px-6 py-2 w-screen bg-red-200">
       <nav className="flex flex-col items-center w-full bg-green-200">
@@ -46,13 +50,53 @@ function Navbar() {
               ></Image>
             </div>
           </div>
-          <div className="flex gap-12 text-secondaryText">
-            <div className="whitespace-nowrap hidden lg:block">Help Center</div>
-            <div className="whitespace-nowrap hidden lg:block">
+          <div
+            className={
+              session
+                ? 'flex gap-4 text-secondaryText h-full'
+                : 'flex gap-2 text-secondaryText h-full'
+            }
+          >
+            <div
+              className={
+                session
+                  ? 'hidden'
+                  : 'whitespace-nowrap hidden lg:flex items-center h-full px-4 rounded-3xl bg-blue-200'
+              }
+            >
+              Help Center
+            </div>
+            <div
+              className={
+                session
+                  ? 'hidden'
+                  : 'whitespace-nowrap hidden lg:flex items-center h-full px-4 rounded-3xl bg-blue-200'
+              }
+            >
               Contact Sales
             </div>
-            <div className="whitespace-nowrap">Login</div>
-            <div className="whitespace-nowrap">Sign Up</div>
+            {session ? (
+              <div className="whitespace-nowrap hidden lg:flex items-center h-full px-4 rounded-3xl bg-blue-200">
+                My Tickets
+              </div>
+            ) : (
+              <Link
+                href={'/sign-in'}
+                className="whitespace-nowrap flex items-center h-full px-4 rounded-3xl bg-blue-200"
+              >
+                Sign In
+              </Link>
+            )}
+            {session ? (
+              <NavbarProfile />
+            ) : (
+              <Link
+                href={'/sign-up'}
+                className="whitespace-nowrap flex items-center h-full px-4 rounded-3xl bg-blue-200"
+              >
+                Sign Up
+              </Link>
+            )}
           </div>
         </div>
 
