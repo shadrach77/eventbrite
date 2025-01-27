@@ -8,10 +8,8 @@ export default function Home() {
   const { data: session, status } = useSession();
 
   return (
-    <div className="w-screen flex justify-center min-w-[320px] overflow-x-scroll min-h-screen">
-      <ScreenCenter>
-        <div>{session?.user.email}</div>
-      </ScreenCenter>
-    </div>
+    <ScreenCenter>
+      <div>{session?.user.email}</div>
+    </ScreenCenter>
   );
 }

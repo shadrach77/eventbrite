@@ -26,7 +26,9 @@ export default function RootLayout({
       <html lang="en">
         <body className={inter.className}>
           <NavbarWrapper />
-          {children}
+          <div className="w-screen flex justify-center min-w-[320px] overflow-x-scroll min-h-screen">
+            {children}
+          </div>
         </body>
       </html>
     </SessionProvider>
