@@ -5,6 +5,7 @@ import { useFormik } from 'formik';
 import { Toaster, toast } from 'sonner';
 import Link from 'next/link';
 import * as Yup from 'yup';
+import { api } from '@/helpers/api';
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -45,6 +46,16 @@ export default function Page() {
             }),
           },
         );
+
+        // const response = await api('auth/profile/new', 'POST', {
+        //   body: {
+        //     email: values.email,
+        //     password: values.password,
+        //     full_name: values.full_name,
+        //     role: values.role,
+        //   },
+        //   contentType: 'application/json',
+        // });
 
         const data = await response.json();
 

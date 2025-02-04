@@ -1,12 +1,30 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 
-const registerSchema = z.object({
-  categoiry_id: z.string(),
-  loaction_id: z.string(),
+const eventSchema = z.object({
+  category_id: z.string(),
+  location_id: z.string(),
   title: z.string(),
-  start_date: z.string(),
-  end_date: z.string(),
+  start_date: z
+    .string()
+    .refine(
+      (val) => {
+        const startDate = new Date(val);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return startDate > today;
+      },
+      {
+        message: 'Start date must be after today',
+      },
+    )
+    .transform((val) => new Date(val)),
+  end_date: z
+    .string()
+    .refine((val) => !isNaN(new Date(val).getTime()), {
+      message: 'Invalid end date',
+    })
+    .transform((val) => new Date(val)),
   description: z.string(),
   picture: z.string().optional(),
 });
@@ -17,7 +35,13 @@ export const validateEventBody = (
   next: NextFunction,
 ) => {
   try {
-    registerSchema.parse(req.body);
+    console.log('req.body => ', req.body);
+    console.log('req.file => ', req.file);
+
+    if (new Date(req.body.end_date) < new Date(req.body.start_date)) {
+      throw new Error('End date cannot be before start date');
+    }
+    eventSchema.parse(req.body);
     next();
   } catch (error) {
     return res.status(400).json({

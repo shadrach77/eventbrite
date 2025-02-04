@@ -1,4 +1,5 @@
 import { EventController } from '@/controllers/event.controller';
+import { uploader } from '@/helpers/multer';
 import { validateEventBody } from '@/middlewares/event.middleware';
 import { verifyJwtMiddleware } from '@/middlewares/jwt.middleware';
 import {
@@ -29,6 +30,7 @@ export class EventRouter {
       '/my-events',
       verifyJwtMiddleware,
       verifyOrganizerRoleMiddleware,
+      uploader().single('picture'),
       validateEventBody,
       this.eventsController.createEvent,
     );

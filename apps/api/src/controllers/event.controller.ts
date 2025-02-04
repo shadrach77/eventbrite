@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import prisma from '@/prisma';
 import { ErrorHandler } from '@/helpers/error.handler';
+import { cloudinaryUpload } from '@/helpers/cloudinary';
 
 export class EventController {
   async getAllEvents(req: Request, res: Response, next: NextFunction) {
@@ -36,7 +37,32 @@ export class EventController {
 
   async createEvent(req: Request, res: Response, next: NextFunction) {
     try {
-      const { body } = req;
+      const existingEvent = await prisma.event.findFirst({
+        where: { title: req.body.title },
+      });
+
+      if (existingEvent) {
+        return res.status(400).send({
+          message: `Event with title ${req.body.title} has already been taken for this account. Please use another title or delete the existing event.`,
+        });
+      }
+
+      if (req.file) {
+        const { secure_url } = await cloudinaryUpload(req.file);
+        req.body.picture = secure_url;
+      }
+      const newEvent = await prisma.event.create({
+        data: {
+          ...req.body,
+          organizer_id: req.user?.id,
+          start_date: new Date(req.body.start_date),
+          end_date: new Date(req.body.end_date),
+        },
+      });
+      res.status(200).send({
+        message: 'Event created successfully',
+        data: newEvent,
+      });
     } catch (error) {
       next(error);
     }
