@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import prisma from '@/prisma';
 import { ErrorHandler } from '@/helpers/error.handler';
-import { cloudinaryUpload } from '@/helpers/cloudinary';
+import { cloudinaryRemove, cloudinaryUpload } from '@/helpers/cloudinary';
 
 export class EventController {
   async getAllEvents(req: Request, res: Response, next: NextFunction) {
@@ -35,6 +35,18 @@ export class EventController {
     }
   }
 
+  async uploadEventPicture(req: Request, res: Response, next: NextFunction) {
+    const { file } = req;
+    if (!file) throw new Error('No File Uploaded');
+
+    const { secure_url } = await cloudinaryUpload(file);
+
+    res.status(201).send({
+      message: `Image with link ${secure_url} successfully uploaded.`,
+      data: secure_url,
+    });
+  }
+
   async createEvent(req: Request, res: Response, next: NextFunction) {
     try {
       const existingEvent = await prisma.event.findFirst({
@@ -47,10 +59,6 @@ export class EventController {
         });
       }
 
-      if (req.file) {
-        const { secure_url } = await cloudinaryUpload(req.file);
-        req.body.picture = secure_url;
-      }
       const newEvent = await prisma.event.create({
         data: {
           ...req.body,

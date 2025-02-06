@@ -27,10 +27,16 @@ export class EventRouter {
       this.eventsController.getAllMyEvents,
     );
     this.router.post(
-      '/my-events',
+      '/my-event-picture',
       verifyJwtMiddleware,
       verifyOrganizerRoleMiddleware,
       uploader().single('picture'),
+      this.eventsController.uploadEventPicture,
+    );
+    this.router.post(
+      '/my-events',
+      verifyJwtMiddleware,
+      verifyOrganizerRoleMiddleware,
       validateEventBody,
       this.eventsController.createEvent,
     );

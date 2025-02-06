@@ -8,6 +8,7 @@ export const verifyJwtMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
+  console.log('req.body now => ', req.body);
   try {
     const { authorization } = req.headers;
 

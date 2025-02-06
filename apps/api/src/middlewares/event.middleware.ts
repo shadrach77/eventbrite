@@ -35,9 +35,6 @@ export const validateEventBody = (
   next: NextFunction,
 ) => {
   try {
-    console.log('req.body => ', req.body);
-    console.log('req.file => ', req.file);
-
     if (new Date(req.body.end_date) < new Date(req.body.start_date)) {
       throw new Error('End date cannot be before start date');
     }

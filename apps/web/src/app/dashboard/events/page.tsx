@@ -6,6 +6,8 @@ import { Toaster, toast } from 'sonner';
 import Link from 'next/link';
 import * as Yup from 'yup';
 import { api } from '@/helpers/api';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface ICategory {
   id: string;
@@ -41,6 +43,10 @@ const validationSchema = Yup.object({
 });
 
 export default function Page() {
+  const { data: session, update } = useSession();
+  const router = useRouter();
+  const [disabled, setDisabled] = useState(false);
+
   const formik = useFormik({
     initialValues: {
       title: '',
@@ -53,43 +59,99 @@ export default function Page() {
     },
     validationSchema,
     onSubmit: async (values) => {
-      try {
-        const response: any = await fetch(
-          'http://localhost:8000/api/auth/profile/new',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            next: {
-              revalidate: 0,
-            },
-            body: JSON.stringify({
-              title: values.title,
-            }),
-          },
-        );
+      const uploadEventPicture = async (): Promise<string | void> => {
+        if (!values.picture) return;
 
-        // const response = await api('auth/profile/new', 'POST', {
-        //   body: {
-        //     email: values.email,
-        //     password: values.password,
-        //     full_name: values.full_name,
-        //     role: values.role,
-        //   },
-        //   contentType: 'application/json',
-        // });
+        const formData = new FormData();
 
-        const data = await response.json();
-
-        if (response.ok) {
-          toast.success(data.message || 'Registration successful!');
-        } else {
-          toast.error(data.message || 'Something went wrong!');
+        if (values.picture) {
+          formData.append('picture', values.picture);
         }
+        try {
+          const response: any = await fetch(
+            'http://localhost:8000/api/events/my-event-picture',
+            {
+              method: 'POST',
+              body: formData,
+              headers: {
+                Authorization: `Bearer ${session?.user.authentication_token}`,
+              },
+            },
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            toast.success(data.message || 'Picture successfully uploaded!');
+            return data.data;
+          } else {
+            toast.error(data.message || 'Something went wrong!');
+            return;
+          }
+        } catch (error) {
+          console.error(error);
+          toast.error('Network error. Please try again later.');
+          return;
+        }
+      };
+
+      const createEvent = async (pictureUrl: string | void) => {
+        try {
+          const response: any = await fetch(
+            'http://localhost:8000/api/events/my-events',
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                title: values.title,
+                category_id: values.category,
+                location_id: values.location,
+                start_date: values.start_date,
+                end_date: values.end_date,
+                description: values.description,
+                picture: pictureUrl,
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user.authentication_token}`,
+              },
+            },
+          );
+
+          // const response = await api('auth/profile/new', 'POST', {
+          //   body: {
+          //     email: values.email,
+          //     password: values.password,
+          //     full_name: values.full_name,
+          //     role: values.role,
+          //   },
+          //   contentType: 'application/json',
+          // })
+
+          const data = await response.json();
+
+          if (response.ok) {
+            toast.success(
+              data.message ||
+                'Event successfully created! Redirecting you soon...',
+            );
+          } else {
+            toast.error(data.message || 'Something went wrong!');
+          }
+        } catch (error) {
+          console.error(error);
+          toast.error('Network error. Please try again later.');
+        }
+      };
+
+      try {
+        setDisabled(true);
+        const pictureUrl = await uploadEventPicture();
+        await createEvent(pictureUrl);
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 2000);
       } catch (error) {
-        console.error(error);
-        toast.error('Network error. Please try again later.');
+        setDisabled(false);
       }
     },
   });
@@ -180,7 +242,7 @@ export default function Page() {
               {categories &&
                 categories.map((category: ICategory) => {
                   return (
-                    <option value={category.label} key={category.id}>
+                    <option value={category.id} key={category.id}>
                       {category.label.toLocaleUpperCase()}
                     </option>
                   );
@@ -208,7 +270,7 @@ export default function Page() {
               {locations &&
                 locations.map((location: ILocation) => {
                   return (
-                    <option value={location.label} key={location.id}>
+                    <option value={location.id} key={location.id}>
                       {location.label.toLocaleUpperCase()}
                     </option>
                   );
@@ -255,7 +317,36 @@ export default function Page() {
             )}
           </div>
 
-          <button className="text-white bg-[#162D3A] p-4 rounded-[12px]">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="picture">Event Picture</label>
+            <input
+              type="file"
+              id="picture"
+              name="picture"
+              className="bg-[#F7FBFF] w-full rounded-[12px] border border-[#D4D7E3] p-4"
+              accept="image/*"
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0];
+                if (file) {
+                  formik.setFieldValue('picture', file);
+                }
+              }}
+            />
+            {formik.touched.picture && formik.errors.picture && (
+              <div className="text-red-500 text-sm">
+                {formik.errors.picture}
+              </div>
+            )}
+          </div>
+
+          <button
+            className={
+              disabled
+                ? 'text-white bg-[#963232] p-4 rounded-[12px]'
+                : 'text-white bg-[#162D3A] p-4 rounded-[12px]'
+            }
+            disabled={disabled}
+          >
             Add Event
           </button>
         </form>
