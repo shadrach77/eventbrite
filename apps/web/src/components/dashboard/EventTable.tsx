@@ -1,27 +1,41 @@
-import React from 'react';
+'use client';
+import React, { useEffect, useState } from 'react';
 import EventsTable from './EventTableHead';
-import gearIcon from '@/media/icons/gear-icon.svg';
+
 import Image from 'next/image';
+import EventTableBody from './EventTableBody';
+import { api } from '@/helpers/api';
+import { useSession } from 'next-auth/react';
+import { IEvent } from '@/types/event.interface';
 
 function EventTable() {
+  const { data: session } = useSession();
+  const [myEvents, setMyEvents] = useState<IEvent[]>([]);
+
+  useEffect(() => {
+    async function getEvents() {
+      try {
+        const response = await api(
+          'events/my-events',
+          'GET',
+          {},
+          session?.user.authentication_token,
+        );
+        setMyEvents(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getEvents();
+  }, [session]);
   return (
     <div className="w-3/4">
       <EventsTable />
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-2 px-4 py-2 w-full bg-blue-200">
-        <div>Hawk Tuah Podcast</div>
-        <div className="flex gap-2">
-          <div className="py-1 px-2 rounded-sm text-white bg-secondaryText">
-            Edit
-          </div>
-          <div className="py-1 px-2 rounded-sm text-white bg-red-600">
-            Delete
-          </div>
-          <div className="flex gap-1.5 items-center py-1 px-2 rounded-sm text-white bg-green-600">
-            <div>Configure</div>
-            <Image src={gearIcon} alt="gear icon" className="h-4 w-4"></Image>
-          </div>
-        </div>
-      </div>
+      {myEvents.map((event) => {
+        return (
+          <EventTableBody key={event.id} {...event} setMyEvents={setMyEvents} />
+        );
+      })}
     </div>
   );
 }

@@ -144,4 +144,23 @@ export class EventController {
       data: data,
     });
   }
+
+  async deleteEvent(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.body;
+
+    if (!id || typeof id !== 'string') {
+      res.status(401).send({
+        message: 'Deletion failed. ID is required to delete an event.',
+      });
+    }
+
+    const data = await prisma.event.delete({
+      where: { id: id },
+    });
+
+    res.send({
+      message: `Event with ID ${id} has been deleted successfully.`,
+      data: data,
+    });
+  }
 }

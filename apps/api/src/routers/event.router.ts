@@ -53,6 +53,13 @@ export class EventRouter {
       this.eventsController.createEvent,
     );
 
+    this.router.delete(
+      '/my-events',
+      verifyJwtMiddleware,
+      verifyOrganizerRoleMiddleware,
+      this.eventsController.deleteEvent,
+    );
+
     this.router.patch(
       '/my-events/:id',
       verifyJwtMiddleware,
