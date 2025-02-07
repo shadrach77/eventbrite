@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "users" ALTER COLUMN "points" DROP NOT NULL,
-ALTER COLUMN "points" DROP DEFAULT;

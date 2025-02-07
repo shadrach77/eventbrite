@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Status {
+enum StatusLabel {
   PENDING_PAYMENT
   PENDING_ADMIN_CONFIRMATION
   DONE
@@ -136,7 +136,6 @@ model Transaction {
   customer               User     @relation(fields: [customer_id], references: [id])
   ticket_type_id         String
   quantity               Int
-  status                 Status   @default(PENDING_PAYMENT)
   payment_proof          String?
   payment_proof_deadline DateTime
   acceptance_deadline    DateTime
@@ -145,5 +144,16 @@ model Transaction {
   created_at             DateTime @default(now())
   updated_at             DateTime @updatedAt
 
+  status Status?
+
   @@map("transactions")
+}
+
+model Status {
+  id             String      @id @default(uuid())
+  transaction_id String      @unique
+  transaction    Transaction @relation(fields: [transaction_id], references: [id])
+  status         StatusLabel
+
+  @@map("status")
 }
