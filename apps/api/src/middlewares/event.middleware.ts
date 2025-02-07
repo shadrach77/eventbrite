@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 
 const eventSchema = z.object({
+  id: z.string().optional(),
   category_id: z.string(),
   location_id: z.string(),
   title: z.string(),

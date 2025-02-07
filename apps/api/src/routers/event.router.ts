@@ -26,6 +26,12 @@ export class EventRouter {
       verifyOrganizerRoleMiddleware,
       this.eventsController.getAllMyEvents,
     );
+    this.router.get(
+      '/my-events/:id',
+      verifyJwtMiddleware,
+      verifyOrganizerRoleMiddleware,
+      this.eventsController.getMyEventById,
+    );
     this.router.post(
       '/my-event-picture',
       verifyJwtMiddleware,
@@ -39,6 +45,14 @@ export class EventRouter {
       verifyOrganizerRoleMiddleware,
       validateEventBody,
       this.eventsController.createEvent,
+    );
+
+    this.router.post(
+      '/my-events/:id',
+      verifyJwtMiddleware,
+      verifyOrganizerRoleMiddleware,
+      validateEventBody,
+      this.eventsController.updateEvent,
     );
   }
 

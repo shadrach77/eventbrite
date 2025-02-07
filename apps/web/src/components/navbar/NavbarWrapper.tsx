@@ -6,7 +6,7 @@ import Navbar from './Navbar';
 export default function NavbarWrapper() {
   const pathname = usePathname();
 
-  const excludedRoutes = ['/sign-in', '/sign-up', '/dashboard/create/event'];
+  const excludedRoutes = ['/sign-in', '/sign-up', '/dashboard/events/new'];
 
   const hideNavbar = excludedRoutes.includes(pathname);
 

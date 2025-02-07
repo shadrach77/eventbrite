@@ -8,7 +8,7 @@ function EventTableHead() {
     <div className="flex flex-row justify-between items-center px-4 py-2 w-full bg-blue-400">
       <div className="text-secondaryText">Events</div>
       <Link
-        href={'/dashboard/create/event'}
+        href={'/dashboard/events/new'}
         className="flex gap-1.5 items-center py-1 px-2 rounded-sm text-white bg-green-600"
       >
         <div>Add Event</div>

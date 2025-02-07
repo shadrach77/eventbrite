@@ -1,19 +1,48 @@
 import { NextFunction, Request, Response } from 'express';
 import prisma from '@/prisma';
+import { Prisma } from '@prisma/client';
 import { ErrorHandler } from '@/helpers/error.handler';
 import { cloudinaryRemove, cloudinaryUpload } from '@/helpers/cloudinary';
 
 export class EventController {
   async getAllEvents(req: Request, res: Response, next: NextFunction) {
+    if (!req.body.id || typeof String(req.body.id) !== 'string') {
+      return res.status(400).send({
+        message: `Failed to create category due to incorrect body`,
+      });
+    }
+
     try {
-      const data = await prisma.event.findMany();
+      const data = await prisma.event.findUnique({
+        where: { id: String(req.body.id) },
+      });
 
       if (!data) {
-        throw new ErrorHandler('No events found', 404);
+        throw new ErrorHandler(`No event with ID ${req.body.id} found`, 404);
       }
 
       return res.status(200).send({
-        message: `Successfully fetched all events.`,
+        message: `Successfully fetched event with ID ${req.body.id}.`,
+        data: data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getMyEventById(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    try {
+      const data = await prisma.event.findUnique({
+        where: { id: id },
+      });
+
+      if (!data) {
+        return res.status(404).send({ message: 'Event not found' });
+      }
+
+      return res.status(200).send({
+        message: `Successfully fetched event with ID ${id}.`,
         data: data,
       });
     } catch (error) {
@@ -74,5 +103,22 @@ export class EventController {
     } catch (error) {
       next(error);
     }
+  }
+
+  async updateEvent(req: Request, res: Response, next: NextFunction) {
+    const data = await prisma.event.update({
+      data: {
+        ...req.body,
+        organizer_id: req.user?.id,
+        start_date: new Date(req.body.start_date),
+        end_date: new Date(req.body.end_date),
+      },
+      where: { id: String(req.body.id) },
+    });
+
+    res.status(200).send({
+      message: `Event with ID ${req.body.id} updated successfully`,
+      data: data,
+    });
   }
 }
