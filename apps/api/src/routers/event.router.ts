@@ -39,6 +39,12 @@ export class EventRouter {
       uploader().single('picture'),
       this.eventsController.uploadEventPicture,
     );
+    this.router.delete(
+      '/my-event-picture',
+      verifyJwtMiddleware,
+      verifyOrganizerRoleMiddleware,
+      this.eventsController.deleteEventPicture,
+    );
     this.router.post(
       '/my-events',
       verifyJwtMiddleware,
@@ -47,7 +53,7 @@ export class EventRouter {
       this.eventsController.createEvent,
     );
 
-    this.router.post(
+    this.router.patch(
       '/my-events/:id',
       verifyJwtMiddleware,
       verifyOrganizerRoleMiddleware,

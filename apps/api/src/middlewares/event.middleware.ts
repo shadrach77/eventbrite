@@ -27,7 +27,7 @@ const eventSchema = z.object({
     })
     .transform((val) => new Date(val)),
   description: z.string(),
-  picture: z.string().optional(),
+  picture: z.string().nullable().optional(),
 });
 
 export const validateEventBody = (

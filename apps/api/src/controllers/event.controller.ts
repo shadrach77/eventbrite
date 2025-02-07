@@ -3,6 +3,7 @@ import prisma from '@/prisma';
 import { Prisma } from '@prisma/client';
 import { ErrorHandler } from '@/helpers/error.handler';
 import { cloudinaryRemove, cloudinaryUpload } from '@/helpers/cloudinary';
+import { ILogin } from '@/interfaces/user.interface';
 
 export class EventController {
   async getAllEvents(req: Request, res: Response, next: NextFunction) {
@@ -32,6 +33,7 @@ export class EventController {
 
   async getMyEventById(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
+    console.log('token =>', req.headers.authorization);
     try {
       const data = await prisma.event.findUnique({
         where: { id: id },
@@ -66,12 +68,32 @@ export class EventController {
 
   async uploadEventPicture(req: Request, res: Response, next: NextFunction) {
     const { file } = req;
-    if (!file) throw new Error('No File Uploaded');
+    if (!file) {
+      return res.status(400).send({
+        message: "There's no image to upload.",
+      });
+    }
 
     const { secure_url } = await cloudinaryUpload(file);
 
     res.status(201).send({
       message: `Image with link ${secure_url} successfully uploaded.`,
+      data: secure_url,
+    });
+  }
+
+  async deleteEventPicture(req: Request, res: Response, next: NextFunction) {
+    const { link } = req.body;
+    if (!link) {
+      return res.status(400).send({
+        message: "There's no image to upload.",
+      });
+    }
+
+    const { secure_url } = await cloudinaryRemove(String(link));
+
+    res.status(201).send({
+      message: `Image with link ${link} successfully deleted.`,
       data: secure_url,
     });
   }
@@ -106,10 +128,11 @@ export class EventController {
   }
 
   async updateEvent(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.user as ILogin;
     const data = await prisma.event.update({
       data: {
         ...req.body,
-        organizer_id: req.user?.id,
+        organizer_id: String(id),
         start_date: new Date(req.body.start_date),
         end_date: new Date(req.body.end_date),
       },

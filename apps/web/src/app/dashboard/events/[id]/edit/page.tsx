@@ -1,13 +1,19 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useFormik } from 'formik';
-import { Toaster, toast } from 'sonner';
-import Link from 'next/link';
 import * as Yup from 'yup';
 import { api } from '@/helpers/api';
-import { useSession } from 'next-auth/react';
+import { toast, Toaster } from 'sonner';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
+type Props = {
+  params: {
+    id: string;
+  };
+};
 
 interface ICategory {
   id: string;
@@ -17,6 +23,19 @@ interface ICategory {
 interface ILocation {
   id: string;
   label: string;
+}
+
+interface ICurrFormData {
+  id: string;
+  organizer_id: string;
+  category_id: string;
+  location_id: string;
+  title: string;
+  start_date: any;
+  end_date: any;
+  description: string;
+  rating?: string;
+  picture?: string;
 }
 
 const validationSchema = Yup.object({
@@ -39,26 +58,109 @@ const validationSchema = Yup.object({
         return value && start_date && new Date(value) >= new Date(start_date);
       },
     ),
-  picture: Yup.string(),
+  picture: Yup.string().optional(),
 });
 
-export default function Page() {
-  const { data: session, update } = useSession();
-  const router = useRouter();
+function Page({ params: { id } }: Props) {
+  const { data: session } = useSession();
+  const [currFormData, setCurrFormData] = useState<ICurrFormData | null>(null);
+  const [currEventPictureLink, setCurrEventPictureLink] = useState('');
   const [disabled, setDisabled] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    async function getFormData() {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/events/my-events/${id}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.authentication_token}`,
+            },
+          },
+        );
+
+        if (!response.ok) {
+          console.log('Error fetching data:', response.statusText);
+          return;
+        }
+
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('application/json')) {
+          const data = await response.json();
+          console.log('currFormData =>', data.data);
+          setCurrFormData(data.data);
+          setCurrEventPictureLink(data.data.picture);
+        } else {
+          console.error('Unexpected response format:', await response.text());
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    }
+
+    if (session) {
+      getFormData();
+    }
+  }, [session, id]);
+
+  //formik
 
   const formik = useFormik({
     initialValues: {
-      title: '',
-      category: '',
-      location: '',
-      start_date: '',
-      end_date: '',
-      description: '',
-      picture: '',
+      title: currFormData?.title,
+      category: currFormData?.category_id,
+      location: currFormData?.location_id,
+      start_date: currFormData?.start_date
+        ? new Date(currFormData.start_date).toISOString().split('T')[0]
+        : '',
+      end_date: currFormData?.end_date
+        ? new Date(currFormData.end_date).toISOString().split('T')[0]
+        : '',
+      description: currFormData?.description,
+      picture: currFormData?.picture,
     },
+    enableReinitialize: true,
     validationSchema,
     onSubmit: async (values) => {
+      const deleteEventPicture = async (): Promise<string | void> => {
+        if (values.picture && currEventPictureLink) {
+          try {
+            const response: any = await fetch(
+              'http://localhost:8000/api/events/my-event-picture',
+              {
+                method: 'DELETE',
+                body: JSON.stringify({
+                  link: String(currEventPictureLink),
+                }),
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${session?.user.authentication_token}`,
+                },
+              },
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+              toast.success(data.message || 'Picture successfully deleted!');
+              return data.data;
+            } else {
+              toast.error(data.message || 'Something went wrong!');
+              return;
+            }
+          } catch (error) {
+            console.error(error);
+            toast.error('Network error. Please try again later.');
+            return;
+          }
+        } else {
+          return;
+        }
+      };
+
       const uploadEventPicture = async (): Promise<string | void> => {
         if (!values.picture) return;
 
@@ -95,20 +197,25 @@ export default function Page() {
         }
       };
 
-      const createEvent = async (pictureUrl: string | void) => {
+      const updateEvent = async (pictureUrl: string | void) => {
         try {
           const response: any = await fetch(
-            'http://localhost:8000/api/events/my-events',
+            `http://localhost:8000/api/events/my-events/${id}`,
             {
-              method: 'POST',
+              method: 'PATCH',
               body: JSON.stringify({
+                id: currFormData?.id,
                 title: values.title,
                 category_id: values.category,
                 location_id: values.location,
                 start_date: values.start_date,
                 end_date: values.end_date,
                 description: values.description,
-                picture: pictureUrl,
+                picture: values.picture
+                  ? pictureUrl
+                  : currEventPictureLink
+                    ? currEventPictureLink
+                    : null,
               }),
               headers: {
                 'Content-Type': 'application/json',
@@ -145,10 +252,11 @@ export default function Page() {
 
       try {
         setDisabled(true);
+        await deleteEventPicture();
         const pictureUrl = await uploadEventPicture();
-        await createEvent(pictureUrl);
+        await updateEvent(pictureUrl);
         setTimeout(() => {
-          router.push('/dashboard');
+          // router.push('/dashboard');
         }, 2000);
       } catch (error) {
         setDisabled(false);
@@ -188,7 +296,7 @@ export default function Page() {
     <div className="flex justify-center items-center w-full">
       <div className="w-full max-w-screen-md flex flex-col gap-8 m-12">
         <div>
-          <h1 className=" font-semibold text-3xl">Create An Event</h1>
+          <h1 className=" font-semibold text-3xl">Edit An Event</h1>
           <p className="mt-1">{`Please add in your event details.`}</p>
         </div>
 
@@ -318,7 +426,7 @@ export default function Page() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="picture">Event Picture</label>
+            <label htmlFor="picture">Change Event Picture</label>
             <input
               type="file"
               id="picture"
@@ -347,7 +455,7 @@ export default function Page() {
             }
             disabled={disabled}
           >
-            Add Event
+            {disabled ? 'Updating Event' : 'Update Event'}
           </button>
         </form>
 
@@ -361,3 +469,5 @@ export default function Page() {
     </div>
   );
 }
+
+export default Page;

@@ -39,7 +39,7 @@ const validationSchema = Yup.object({
         return value && start_date && new Date(value) >= new Date(start_date);
       },
     ),
-  picture: Yup.string(),
+  picture: Yup.string().optional(),
 });
 
 export default function Page() {
