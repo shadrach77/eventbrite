@@ -13,6 +13,7 @@ import { EventRouter } from './routers/event.router';
 import { AuthRouter } from './routers/auth.router';
 import { LocationRouter } from './routers/location.router';
 import { CategoryRouter } from './routers/category.router';
+import { TicketRouter } from './routers/ticket.router';
 
 export default class App {
   private app: Express;
@@ -58,6 +59,7 @@ export default class App {
     const authRouter = new AuthRouter();
     const locationRouter = new LocationRouter();
     const categoryRouter = new CategoryRouter();
+    const ticketRouter = new TicketRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
@@ -66,6 +68,7 @@ export default class App {
     this.app.use('/api/auth', authRouter.getRouter());
     this.app.use('/api/locations', locationRouter.getRouter());
     this.app.use('/api/categories', categoryRouter.getRouter());
+    this.app.use('/api/tickets', ticketRouter.getRouter());
   }
 
   public start(): void {

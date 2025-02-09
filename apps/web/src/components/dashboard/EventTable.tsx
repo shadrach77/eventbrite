@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import EventsTable from './EventTableHead';
+import EventTableHead from './EventTableHead';
 
 import Image from 'next/image';
 import EventTableBody from './EventTableBody';
@@ -30,7 +30,7 @@ function EventTable() {
   }, [session]);
   return (
     <div className="w-3/4">
-      <EventsTable />
+      <EventTableHead />
       {myEvents.map((event) => {
         return (
           <EventTableBody key={event.id} {...event} setMyEvents={setMyEvents} />

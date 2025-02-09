@@ -129,6 +129,13 @@ export class EventController {
 
   async updateEvent(req: Request, res: Response, next: NextFunction) {
     const { id } = req.user as ILogin;
+
+    if (!req.params.id || typeof req.params.id !== 'string') {
+      res.status(401).send({
+        message: `Update failed. ID is required to update an event.`,
+      });
+    }
+
     const data = await prisma.event.update({
       data: {
         ...req.body,
@@ -136,7 +143,7 @@ export class EventController {
         start_date: new Date(req.body.start_date),
         end_date: new Date(req.body.end_date),
       },
-      where: { id: String(req.body.id) },
+      where: { id: String(req.params.id) },
     });
 
     res.status(200).send({
