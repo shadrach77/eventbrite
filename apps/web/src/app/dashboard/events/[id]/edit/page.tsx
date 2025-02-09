@@ -256,7 +256,7 @@ function Page({ params: { id } }: Props) {
         const pictureUrl = await uploadEventPicture();
         await updateEvent(pictureUrl);
         setTimeout(() => {
-          // router.push('/dashboard');
+          router.push('/dashboard');
         }, 2000);
       } catch (error) {
         setDisabled(false);

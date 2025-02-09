@@ -13,11 +13,39 @@ import { toast, Toaster } from 'sonner';
 function EventTableBody({
   title,
   id,
+  picture,
   setMyEvents,
 }: IEvent & { setMyEvents: React.Dispatch<React.SetStateAction<IEvent[]>> }) {
   const { data: session } = useSession();
   const onDelete = async () => {
-    try {
+    async function deletePicture(link: string) {
+      const response = await fetch(
+        'http://localhost:8000/api/events/my-event-picture',
+        {
+          method: 'DELETE',
+          body: JSON.stringify({
+            link: link,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user.authentication_token}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.message || 'Something went wrong!');
+      }
+
+      toast.success('Picture deleted successfully.');
+      setMyEvents((prevEvents) =>
+        prevEvents.filter((event) => event.id !== id),
+      );
+    }
+
+    async function deleteEvent() {
       console.log('token =>', session?.user.authentication_token);
       const response = await fetch(
         'http://localhost:8000/api/events/my-events',
@@ -43,6 +71,14 @@ function EventTableBody({
       setMyEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== id),
       );
+    }
+
+    try {
+      if (picture) {
+        await deletePicture(picture);
+      }
+
+      await deleteEvent();
     } catch (error) {
       console.log(error);
     }
