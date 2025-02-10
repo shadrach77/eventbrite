@@ -12,17 +12,21 @@ const ticketSchema = z.object({
     .refine(
       (val) => {
         const startDate = new Date(val);
-        return !isNaN(startDate.getTime()) && startDate > new Date();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return startDate > today;
       },
-      { message: 'Start date must be after today' },
+      {
+        message: 'Start date must be after today',
+      },
     )
-    .transform((val) => new Date(val).toISOString()),
+    .transform((val) => new Date(val).toISOString),
   end_date: z
     .string()
     .refine((val) => !isNaN(new Date(val).getTime()), {
       message: 'Invalid end date',
     })
-    .transform((val) => new Date(val).toISOString()),
+    .transform((val) => new Date(val).toISOString),
 });
 
 export const validateTicketBody = (

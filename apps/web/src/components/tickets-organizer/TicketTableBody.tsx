@@ -15,6 +15,7 @@ function TicketTableBody({
   title,
   price,
   available_seats,
+  event_id,
   setMyTickets,
 }: ITicketType & {
   setMyTickets: React.Dispatch<React.SetStateAction<ITicketType[]>>;
@@ -24,12 +25,9 @@ function TicketTableBody({
     async function deleteTicketType() {
       console.log('token =>', session?.user.authentication_token);
       const response = await fetch(
-        'http://localhost:8000/api/tickets/my-events',
+        `http://localhost:8000/api/tickets/my-tickets/${id}`,
         {
           method: 'DELETE',
-          body: JSON.stringify({
-            id: id,
-          }),
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session?.user.authentication_token}`,
@@ -43,7 +41,7 @@ function TicketTableBody({
         toast.error(data.message || 'Something went wrong!');
       }
 
-      toast.success('Event deleted successfully.');
+      toast.success('Ticket deleted successfully.');
       setMyTickets((prevTickets) =>
         prevTickets.filter((ticket) => ticket.id !== id),
       );
@@ -71,7 +69,7 @@ function TicketTableBody({
 
       <div className="flex gap-2 whitespace-nowrap">
         <Link
-          href={`/dashboard/events//tickets/${id}/edit`}
+          href={`/dashboard/events/${event_id}/tickets/${id}/edit`}
           className="py-1 px-2 rounded-sm text-white bg-secondaryText"
         >
           Edit

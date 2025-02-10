@@ -23,13 +23,100 @@ export class TicketController {
     }
   }
 
+  async getAllMyTicketsByEventId(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    const { id } = req.user as ILogin;
+    const { eventId } = req.params;
+
+    if (!eventId) {
+      return res.status(401).send({
+        message:
+          "Couldn't fetch all ticket types by event ID without an event ID.",
+      });
+    }
+
+    const myTicketTypes = await prisma.ticketType.findFirst({
+      where: { event_id: req.params.eventId },
+      include: { event: true },
+    });
+
+    if (!myTicketTypes) {
+      return res.status(404).send({
+        message: `Couldn't find a ticket type of event under ID ${eventId}`,
+      });
+    }
+
+    if (myTicketTypes?.event.organizer_id !== id) {
+      return res.status(403).send({
+        message: `You do not have permission to update this ticket_type`,
+      });
+    }
+
+    const data = await prisma.ticketType.findMany({
+      where: { event_id: req.params.eventId },
+    });
+
+    if (!data.length) {
+      return res.status(404).send({
+        message: `You don't have any ticket type under event id ${eventId}.`,
+      });
+    }
+
+    res.status(201).send({
+      message: `Successfully fetched all ticket types under event_id ${eventId}.`,
+      data: data,
+    });
+  }
+
+  async getMyTicketById(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.user as ILogin;
+    try {
+      if (!req.params.id || typeof String(req.params.id) !== 'string') {
+        return res.status(401).send({
+          message:
+            'Fetch failed. ID is required to fetch a specific ticket_type.',
+        });
+      }
+
+      const thisTicket = await prisma.ticketType.findUnique({
+        where: { id: req.params.id },
+        include: { event: true },
+      });
+
+      if (!thisTicket) {
+        return res.status(404).send({
+          message: `Ticket_type with ID ${req.params.id} not found`,
+        });
+      }
+
+      if (thisTicket?.event.organizer_id !== id) {
+        return res.status(403).send({
+          message: `You do not have permission to update this ticket_type`,
+        });
+      }
+
+      const data = await prisma.ticketType.findUnique({
+        where: { id: req.params.id },
+      });
+
+      res.status(200).send({
+        message: `Successfully fetched ticket_type with ID ${req.params.id}`,
+        data: data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async createTicket(req: Request, res: Response, next: NextFunction) {
     try {
       const existingEvent = await prisma.ticketType.findFirst({
         where: {
-          ...req.body,
-          start_date: new Date(req.body.start_date),
-          end_date: new Date(req.body.end_date),
+          title: req.body.title,
+          event_id: req.body.event_id,
         },
       });
 
@@ -40,7 +127,11 @@ export class TicketController {
       }
 
       const data = await prisma.ticketType.create({
-        data: req.body,
+        data: {
+          ...req.body,
+          start_date: new Date(req.body.start_date),
+          end_date: new Date(req.body.end_date),
+        },
       });
 
       res.status(200).send({

@@ -6,26 +6,20 @@ const eventSchema = z.object({
   category_id: z.string(),
   location_id: z.string(),
   title: z.string(),
-  start_date: z
-    .string()
-    .refine(
-      (val) => {
-        const startDate = new Date(val);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return startDate > today;
-      },
-      {
-        message: 'Start date must be after today',
-      },
-    )
-    .transform((val) => new Date(val)),
-  end_date: z
-    .string()
-    .refine((val) => !isNaN(new Date(val).getTime()), {
-      message: 'Invalid end date',
-    })
-    .transform((val) => new Date(val)),
+  start_date: z.string().refine(
+    (val) => {
+      const startDate = new Date(val);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return startDate > today;
+    },
+    {
+      message: 'Start date must be after today',
+    },
+  ),
+  end_date: z.string().refine((val) => !isNaN(new Date(val).getTime()), {
+    message: 'Invalid end date',
+  }),
   description: z.string(),
   picture: z.string().nullable().optional(),
 });

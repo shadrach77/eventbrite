@@ -111,10 +111,13 @@ function EventTableBody({
         >
           Delete
         </button>
-        <div className="flex gap-1.5 items-center py-1 px-2 rounded-sm text-white bg-green-600">
+        <Link
+          href={`/dashboard/events/${id}`}
+          className="flex gap-1.5 items-center py-1 px-2 rounded-sm text-white bg-green-600"
+        >
           <div>Configure</div>
           <Image src={gearIcon} alt="gear icon" className="h-4 w-4"></Image>
-        </div>
+        </Link>
       </div>
       <Toaster richColors></Toaster>
     </div>

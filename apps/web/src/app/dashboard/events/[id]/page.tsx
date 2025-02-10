@@ -13,7 +13,7 @@ function page({ params: { id } }: Props) {
     <div>
       <ScreenCenter>
         <div className="flex flex-col items-center mt-24 w-screen">
-          <TicketTable />
+          <TicketTable event_id={id} />
         </div>
       </ScreenCenter>
     </div>
