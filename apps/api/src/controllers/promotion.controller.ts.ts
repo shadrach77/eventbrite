@@ -2,11 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 import prisma from '@/prisma';
 import { ILogin } from '@/interfaces/user.interface';
 
-export class TicketController {
-  async getAllMyTickets(req: Request, res: Response, next: NextFunction) {
+export class PromotionController {
+  async getAllMyPromotions(req: Request, res: Response, next: NextFunction) {
     const { id } = req.user as ILogin;
     try {
-      const allMyTickets = await prisma.ticketType.findMany({
+      const allMyPromotions = await prisma.promotion.findMany({
         where: {
           event: {
             organizer_id: id,
@@ -15,15 +15,15 @@ export class TicketController {
       });
 
       return res.status(200).send({
-        message: `Fetched all ticket_types with organizer ID ${id}`,
-        data: allMyTickets,
+        message: `Fetched all promotions with organizer ID ${id}`,
+        data: allMyPromotions,
       });
     } catch (error) {
       next(error);
     }
   }
 
-  async getAllMyTicketsByEventId(
+  async getAllMyPromotionsByEventId(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -34,76 +34,76 @@ export class TicketController {
     if (!eventId) {
       return res.status(401).send({
         message:
-          "Couldn't fetch all ticket types by event ID without an event ID.",
+          "Couldn't fetch all promotion types by event ID without an event ID.",
       });
     }
 
-    const myTicketTypes = await prisma.ticketType.findFirst({
+    const myPromotions = await prisma.promotion.findFirst({
       where: { event_id: req.params.eventId },
       include: { event: true },
     });
 
-    if (!myTicketTypes) {
+    if (!myPromotions) {
       return res.status(404).send({
-        message: `Couldn't find a ticket type of event under ID ${eventId}`,
+        message: `Couldn't find a promotion of event under ID ${eventId}`,
       });
     }
 
-    if (myTicketTypes?.event.organizer_id !== id) {
+    if (myPromotions?.event.organizer_id !== id) {
       return res.status(403).send({
-        message: `You do not have permission to get this ticket_type details`,
+        message: `You do not have permission to get this promotion details`,
       });
     }
 
-    const data = await prisma.ticketType.findMany({
+    const data = await prisma.promotion.findMany({
       where: { event_id: req.params.eventId },
     });
 
     if (!data.length) {
       return res.status(404).send({
-        message: `You don't have any ticket type under event id ${eventId}.`,
+        message: `You don't have any promotions under event id ${eventId}.`,
       });
     }
 
     res.status(201).send({
-      message: `Successfully fetched all ticket types under event_id ${eventId}.`,
+      message: `Successfully fetched all promotions under event_id ${eventId}.`,
       data: data,
     });
   }
 
-  async getMyTicketById(req: Request, res: Response, next: NextFunction) {
+  async getMyPromotionById(req: Request, res: Response, next: NextFunction) {
     const { id } = req.user as ILogin;
     try {
       if (!req.params.id || typeof String(req.params.id) !== 'string') {
         return res.status(401).send({
           message:
-            'Fetch failed. ID is required to fetch a specific ticket_type.',
+            'Fetch failed. ID is required to fetch a specific promotion.',
         });
       }
 
-      const thisTicket = await prisma.ticketType.findUnique({
+      const thisPromotion = await prisma.promotion.findUnique({
         where: { id: req.params.id },
         include: { event: true },
       });
 
-      if (!thisTicket) {
+      if (!thisPromotion) {
         return res.status(404).send({
-          message: `Ticket_type with ID ${req.params.id} not found`,
+          message: `Promotion with ID ${req.params.id} not found`,
         });
       }
 
-      if (thisTicket?.event.organizer_id !== id) {
+      if (thisPromotion?.event.organizer_id !== id) {
         return res.status(403).send({
-          message: `You do not have permission to get this ticket_type details`,
+          message: `You do not have permission to get this promotion details`,
         });
       }
 
-      const data = await prisma.ticketType.findUnique({
+      const data = await prisma.promotion.findUnique({
         where: { id: req.params.id },
       });
 
       res.status(200).send({
-        message: `Successfully fetched ticket_type with ID ${req.params.id}`,
+        message: `Successfully fetched promotion with ID ${req.params.id}`,
         data: data,
       });
     } catch (error) {
@@ -111,22 +111,22 @@ export class TicketController {
     }
   }
 
-  async createTicket(req: Request, res: Response, next: NextFunction) {
+  async createPromotion(req: Request, res: Response, next: NextFunction) {
     try {
-      const existingEvent = await prisma.ticketType.findFirst({
+      const existingPromotion = await prisma.promotion.findFirst({
         where: {
-          title: req.body.title,
+          code: req.body.code,
           event_id: req.body.event_id,
         },
       });
 
-      if (existingEvent) {
+      if (existingPromotion) {
         return res.status(401).send({
-          message: `Failed to create ticket_type with title ${req.body.title} because another ticket_type with the same name already exist for this event`,
+          message: `Failed to create promotion with code ${req.body.code} because another promotion with the same code already exist for this event`,
         });
       }
 
-      const data = await prisma.ticketType.create({
+      const data = await prisma.promotion.create({
         data: {
           ...req.body,
           start_date: new Date(req.body.start_date),
@@ -135,7 +135,7 @@ export class TicketController {
       });
 
       res.status(200).send({
-        message: `Created ticket_type with title ${req.body.title} created.`,
+        message: `Created promotion with code ${req.body.code} created.`,
         data: data,
       });
     } catch (error) {
@@ -143,34 +143,35 @@ export class TicketController {
     }
   }
 
-  async updateTicket(req: Request, res: Response, next: NextFunction) {
+  async updatePromotion(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.user as ILogin;
 
       if (!req.params.id || typeof String(req.params.id) !== 'string') {
         return res.status(401).send({
-          message: 'Update failed. ID is required to update a ticket_type.',
+          message:
+            'Update failed. ID is required to update a specific promotion.',
         });
       }
 
-      const thisTicket = await prisma.ticketType.findUnique({
+      const thisPromotion = await prisma.promotion.findUnique({
         where: { id: String(req.params.id) },
         include: { event: true },
       });
 
-      if (!thisTicket) {
+      if (!thisPromotion) {
         return res.status(404).send({
-          message: `Ticket_type with ID ${req.params.id} not found`,
+          message: `Promotion with ID ${req.params.id} not found`,
         });
       }
 
-      if (thisTicket?.event.organizer_id !== id) {
+      if (thisPromotion?.event.organizer_id !== id) {
         return res.status(403).send({
-          message: `You do not have permission to update this ticket_type`,
+          message: `You do not have permission to update this promotion`,
         });
       }
 
-      const data = await prisma.ticketType.update({
+      const data = await prisma.promotion.update({
         data: {
           ...req.body,
           start_date: new Date(req.body.start_date),
@@ -180,7 +181,7 @@ export class TicketController {
       });
 
       res.status(200).send({
-        message: `Ticket_type with ID ${req.params.id} updated successfully`,
+        message: `Promotion with ID ${req.params.id} updated successfully`,
         data: data,
       });
     } catch (error) {
@@ -188,38 +189,39 @@ export class TicketController {
     }
   }
 
-  async deleteTicket(req: Request, res: Response, next: NextFunction) {
+  async deletePromotion(req: Request, res: Response, next: NextFunction) {
     const { id } = req.user as ILogin;
 
     if (!req.params.id || typeof String(req.params.id) !== 'string') {
       return res.status(401).send({
-        message: 'Deletion failed. ID is required to delete a ticket_type.',
+        message:
+          'Deletion failed. ID is required to delete a specifc promotion.',
       });
     }
 
-    const thisTicket = await prisma.ticketType.findUnique({
+    const thisPromotion = await prisma.promotion.findUnique({
       where: { id: String(req.params.id) },
       include: { event: true },
     });
 
-    if (!thisTicket) {
+    if (!thisPromotion) {
       return res.status(404).send({
-        message: `Ticket_type with ID ${req.params.id} not found`,
+        message: `Promotion with ID ${req.params.id} not found`,
       });
     }
 
-    if (thisTicket?.event.organizer_id !== id) {
+    if (thisPromotion?.event.organizer_id !== id) {
       return res.status(403).send({
-        message: `You do not have permission to delete this ticket_type`,
+        message: `You do not have permission to delete this promotion`,
       });
     }
 
-    const data = await prisma.ticketType.delete({
+    const data = await prisma.promotion.delete({
       where: { id: req.params.id },
     });
 
     res.send({
-      message: `Ticket_type with ID ${req.params.id} has been deleted successfully.`,
+      message: `promotion with ID ${req.params.id} has been deleted successfully.`,
       data: data,
     });
   }

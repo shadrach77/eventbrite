@@ -263,7 +263,10 @@ function Page({ params: { ticket_id } }: Props) {
         </form>
 
         <center>
-          <Link href={'/dashboard'} className="text-[#1E4AE9]">
+          <Link
+            href={'/dashboard/events/${currFormData?.event_id}'}
+            className="text-[#1E4AE9]"
+          >
             Cancel
           </Link>
           <Toaster richColors className=""></Toaster>

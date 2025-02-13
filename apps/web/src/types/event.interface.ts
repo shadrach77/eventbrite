@@ -24,3 +24,14 @@ export interface ITicketType {
   created_at: any;
   updated_at: any;
 }
+
+export interface IPromotionType {
+  id: string;
+  event_id: string;
+  code: string;
+  amount: number;
+  start_date: any;
+  end_date: any;
+  created_at: any;
+  updated_at: any;
+}

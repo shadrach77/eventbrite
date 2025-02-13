@@ -1,5 +1,6 @@
 import EventTable from '@/components/dashboard/EventTable';
 import ScreenCenter from '@/components/global/ScreenCenter';
+import PromotionTable from '@/components/promotion/PromotionTable';
 import TicketTable from '@/components/tickets-organizer/TicketTable';
 
 type Props = {
@@ -12,8 +13,9 @@ function page({ params: { id } }: Props) {
   return (
     <div>
       <ScreenCenter>
-        <div className="flex flex-col items-center mt-24 w-screen">
+        <div className="flex flex-col gap-8 items-center mt-24 w-screen">
           <TicketTable event_id={id} />
+          <PromotionTable event_id={id} />
         </div>
       </ScreenCenter>
     </div>

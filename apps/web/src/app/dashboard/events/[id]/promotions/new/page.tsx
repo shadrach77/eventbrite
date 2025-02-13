@@ -16,13 +16,8 @@ type Props = {
 };
 
 const validationSchema = Yup.object({
-  title: Yup.string().required('Please enter a title for this ticket type.'),
-  price: Yup.number().required(
-    'Please set a valid price. Enter "0" if this ticket is free.',
-  ),
-  available_seats: Yup.number().required(
-    `Please set a valid price. Enter "0" if this ticket is free`,
-  ),
+  code: Yup.string().required('Please enter a promotion code.'),
+  amount: Yup.number().required('Please set the discount amount.'),
   start_date: Yup.date()
     .required('Please select a valid date.')
     .min(new Date(), "Start date must be after today's date"),
@@ -44,18 +39,17 @@ export default function Page({ params: { id } }: Props) {
 
   const formik = useFormik({
     initialValues: {
-      title: '',
-      price: '',
-      available_seats: '',
+      code: '',
+      amount: '',
       start_date: '',
       end_date: '',
     },
     validationSchema,
     onSubmit: async (values) => {
-      const createTicketType = async () => {
+      const createPromotion = async () => {
         try {
           const response: any = await fetch(
-            'http://localhost:8000/api/tickets/my-tickets',
+            'http://localhost:8000/api/promotions/my-promotions',
             {
               method: 'POST',
               body: JSON.stringify({
@@ -76,7 +70,7 @@ export default function Page({ params: { id } }: Props) {
           if (response.ok) {
             toast.success(
               data.message ||
-                'Ticket Type successfully created! Redirecting you soon...',
+                'Promotion successfully created! Redirecting you soon...',
             );
           } else {
             toast.error(data.message || 'Something went wrong!');
@@ -89,7 +83,7 @@ export default function Page({ params: { id } }: Props) {
 
       try {
         setDisabled(true);
-        await createTicketType();
+        await createPromotion();
         setTimeout(() => {
           router.push(`/dashboard/events/${id}`);
         }, 2000);
@@ -103,60 +97,41 @@ export default function Page({ params: { id } }: Props) {
     <div className="flex justify-center items-center w-full">
       <div className="w-full max-w-screen-md flex flex-col gap-8 m-12">
         <div>
-          <h1 className=" font-semibold text-3xl">Create An Ticket Type</h1>
+          <h1 className=" font-semibold text-3xl">Create A Promotion</h1>
           <p className="mt-1">{`Please add in your ticket details.`}</p>
         </div>
 
         <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
           <div className="flex flex-col gap-2">
-            <label htmlFor="title">Title</label>
+            <label htmlFor="code">Code</label>
             <input
               type="text"
-              name="title"
-              id="title"
+              name="code"
+              id="cpde"
               className="bg-[#F7FBFF] w-full rounded-[12px] border border-[#D4D7E3] p-4"
-              placeholder="title"
-              value={formik.values.title}
+              placeholder="code"
+              value={formik.values.code}
               onChange={formik.handleChange}
             />
-            {formik.touched.title && formik.errors.title && (
-              <div className="text-red-500 text-sm">{formik.errors.title}</div>
+            {formik.touched.code && formik.errors.code && (
+              <div className="text-red-500 text-sm">{formik.errors.code}</div>
             )}
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="price">Price</label>
+            <label htmlFor="amount">Amount</label>
             <input
               type="number"
-              name="price"
-              id="price"
+              name="amount"
+              id="amount"
               className="bg-[#F7FBFF] w-full rounded-[12px] border border-[#D4D7E3] p-4"
               placeholder="0"
-              value={formik.values.price}
+              value={formik.values.amount}
               onChange={formik.handleChange}
             />
-            {formik.touched.price && formik.errors.price && (
-              <div className="text-red-500 text-sm">{formik.errors.price}</div>
+            {formik.touched.amount && formik.errors.amount && (
+              <div className="text-red-500 text-sm">{formik.errors.amount}</div>
             )}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="available_seats">Available Seats</label>
-            <input
-              type="number"
-              name="available_seats"
-              id="available_seats"
-              className="bg-[#F7FBFF] w-full rounded-[12px] border border-[#D4D7E3] p-4"
-              placeholder="0"
-              value={formik.values.available_seats}
-              onChange={formik.handleChange}
-            />
-            {formik.touched.available_seats &&
-              formik.errors.available_seats && (
-                <div className="text-red-500 text-sm">
-                  {formik.errors.available_seats}
-                </div>
-              )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -201,7 +176,7 @@ export default function Page({ params: { id } }: Props) {
             }
             disabled={disabled}
           >
-            Add Ticket Type
+            Add Promotion Type
           </button>
         </form>
 
