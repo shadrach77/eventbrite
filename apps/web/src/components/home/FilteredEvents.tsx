@@ -3,6 +3,7 @@ import { api } from '@/helpers/api';
 import { IEvent } from '@/types/event.interface';
 import { filter } from 'cypress/types/bluebird';
 import React, { useEffect, useState } from 'react';
+import EventCard from './EventCard';
 
 interface ILocation {
   id: string;
@@ -138,7 +139,7 @@ function FilterEvents() {
       </div>
       <div>
         {filteredEvents.map((event: IEvent) => {
-          return <div key={event.id}>{event.title}</div>;
+          return <EventCard {...event} key={event.id} />;
         })}
       </div>
     </>

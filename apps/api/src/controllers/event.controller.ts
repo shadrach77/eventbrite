@@ -14,6 +14,9 @@ export class EventController {
             location_id: String(req.query.location_id),
             category_id: String(req.query.category_id),
           },
+          include: {
+            organizer: true,
+          },
         });
 
         return res.status(200).send({
@@ -26,6 +29,9 @@ export class EventController {
         const data = await prisma.event.findMany({
           where: {
             location_id: String(req.query.location_id),
+          },
+          include: {
+            organizer: true,
           },
         });
 
@@ -40,6 +46,9 @@ export class EventController {
           where: {
             category_id: String(req.query.category_id),
           },
+          include: {
+            organizer: true,
+          },
         });
 
         return res.status(200).send({
@@ -48,7 +57,11 @@ export class EventController {
         });
       }
 
-      const data = await prisma.event.findMany();
+      const data = await prisma.event.findMany({
+        include: {
+          organizer: true,
+        },
+      });
 
       return res.status(200).send({
         message: `Successfully fetched all events.`,
@@ -96,15 +109,11 @@ export class EventController {
 
   async getMyEventById(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
-    console.log('token =>', req.headers.authorization);
+
     try {
       const data = await prisma.event.findUnique({
         where: { id: id },
       });
-
-      if (!data) {
-        return res.status(404).send({ message: 'Event not found' });
-      }
 
       return res.status(200).send({
         message: `Successfully fetched event with ID ${id}.`,
