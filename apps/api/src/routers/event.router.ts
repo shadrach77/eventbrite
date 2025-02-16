@@ -20,18 +20,14 @@ export class EventRouter {
 
   private initializeRoutes(): void {
     this.router.get('/', this.eventsController.getAllEvents);
+
     this.router.get(
       '/my-events',
       verifyJwtMiddleware,
       verifyOrganizerRoleMiddleware,
       this.eventsController.getAllMyEvents,
     );
-    this.router.get(
-      '/my-events/:id',
-      verifyJwtMiddleware,
-      verifyOrganizerRoleMiddleware,
-      this.eventsController.getMyEventById,
-    );
+    this.router.get('/my-events/:id', this.eventsController.getMyEventById);
     this.router.post(
       '/my-event-picture',
       verifyJwtMiddleware,
