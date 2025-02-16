@@ -8,7 +8,7 @@ import Link from 'next/link';
 function NavbarProfile() {
   const { data: session, status } = useSession();
   return (
-    <div className="whitespace-nowrap flex items-center h-full px-4 bg-blue-400 relative group hover:bg-secondaryBackground">
+    <div className="whitespace-nowrap flex items-center h-full px-4 bg-blue-400 relative group hover:bg-secondaryBackground z-20">
       <div className="flex items-center gap-2 ">
         <Image
           src={

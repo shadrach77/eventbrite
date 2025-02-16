@@ -7,23 +7,86 @@ import { ILogin } from '@/interfaces/user.interface';
 
 export class EventController {
   async getAllEvents(req: Request, res: Response, next: NextFunction) {
-    if (!req.body.id || typeof String(req.body.id) !== 'string') {
-      return res.status(400).send({
-        message: `Failed to create category due to incorrect body`,
-      });
-    }
-
     try {
-      const data = await prisma.event.findUnique({
-        where: { id: String(req.body.id) },
+      if (req.query.location_id && req.query.category_id) {
+        const data = await prisma.event.findMany({
+          where: {
+            location_id: String(req.query.location_id),
+            category_id: String(req.query.category_id),
+          },
+        });
+
+        return res.status(200).send({
+          message: `Successfully fetched all events with location_id ${req.query.location_id} and category_id ${req.query.category_id}.`,
+          data: data,
+        });
+      }
+
+      if (req.query.location_id && !req.query.category_id) {
+        const data = await prisma.event.findMany({
+          where: {
+            location_id: String(req.query.location_id),
+          },
+        });
+
+        return res.status(200).send({
+          message: `Successfully fetched all events with location_id ${req.query.location_id}.`,
+          data: data,
+        });
+      }
+
+      if (!req.query.location_id && req.query.category_id) {
+        const data = await prisma.event.findMany({
+          where: {
+            category_id: String(req.query.category_id),
+          },
+        });
+
+        return res.status(200).send({
+          message: `Successfully fetched all events with category_id ${req.query.category_id}.`,
+          data: data,
+        });
+      }
+
+      const data = await prisma.event.findMany();
+
+      return res.status(200).send({
+        message: `Successfully fetched all events.`,
+        data: data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAllEventsByLocationId(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { location_id } = req.params;
+
+      if (!location_id) {
+        res.status(401).send({
+          message: `Failed to fetched events byu location ID because 'location_id' is missing as a param`,
+        });
+      }
+
+      const data = await prisma.event.findMany({
+        where: {
+          location_id: location_id,
+        },
       });
 
       if (!data) {
-        throw new ErrorHandler(`No event with ID ${req.body.id} found`, 404);
+        res.status(400).send({
+          message: `No events found with location_id ${location_id}.`,
+        });
       }
 
       return res.status(200).send({
-        message: `Successfully fetched event with ID ${req.body.id}.`,
+        message: `Successfully fetched all events with location_id ${location_id}.`,
         data: data,
       });
     } catch (error) {

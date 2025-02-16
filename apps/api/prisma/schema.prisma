@@ -90,7 +90,7 @@ model Location {
 model TicketType {
   id              String   @id @default(uuid())
   event_id        String
-  event           Event    @relation(fields: [event_id], references: [id])
+  event           Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
   title           String
   price           Int
   available_seats Int
@@ -105,7 +105,7 @@ model TicketType {
 model Promotion {
   id         String   @id @default(uuid())
   event_id   String
-  event      Event    @relation(fields: [event_id], references: [id])
+  event      Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
   code       String
   amount     Int
   start_date DateTime
@@ -121,7 +121,7 @@ model Review {
   customer_id    String
   transaction_id String
   event_id       String
-  event          Event    @relation(fields: [event_id], references: [id])
+  event          Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
   rating         Int
   description    String
   created_at     DateTime @default(now())
