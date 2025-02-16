@@ -87,12 +87,12 @@ function FilterEvents() {
       <div className="mt-8 flex h-16 items-center border-t border-b border-gray-500 w-full">
         <div>Browsing Events In</div>
 
-        <form>
+        <form className="ml-1">
           {' '}
           <select
             name="location"
             id="location"
-            className="bg-[#F7FBFF] w-full rounded-[12px] border border-[#D4D7E3] p-4 appearance-none focus:outline-1"
+            className=" w-full border-0 px-1 py-2 border-primaryOrange border-b-2 bg-transparent"
             value={selectedLocationId}
             onChange={(e) => {
               setSelectedLocationId(e.target.value);
@@ -105,12 +105,36 @@ function FilterEvents() {
               allLocations.map((location: ILocation) => {
                 return (
                   <option value={location.id} key={location.id}>
-                    {location.label.toLocaleUpperCase()}
+                    {location.label.charAt(0).toUpperCase() +
+                      location.label.slice(1).toLowerCase()}
                   </option>
                 );
               })}
           </select>
         </form>
+      </div>
+      <div className="flex gap-4 mt-5 w-full">
+        {allCategories.map((category: ICategory) => (
+          <label key={category.id}>
+            <input
+              type="radio"
+              name="category"
+              value={String(category.id)}
+              checked={selectedCategoryId === category.id}
+              onChange={() => setSelectedCategoryId(category.id)}
+              className="hidden"
+            />
+            <span
+              className={`px-4 py-2 rounded-full cursor-pointer transition ${
+                selectedCategoryId === category.id
+                  ? 'bg-blueAccent text-white shadow-md'
+                  : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              {category.label}
+            </span>
+          </label>
+        ))}
       </div>
       <div>
         {filteredEvents.map((event: IEvent) => {
