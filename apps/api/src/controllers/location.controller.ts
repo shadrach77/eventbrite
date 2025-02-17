@@ -6,7 +6,7 @@ export class LocationController {
     const data = await prisma.location.findMany();
 
     return res.status(201).send({
-      message: `Successfully fecthed all locations`,
+      message: `Successfully fetched all locations`,
       data: data,
     });
   }

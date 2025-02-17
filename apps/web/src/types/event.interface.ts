@@ -12,6 +12,9 @@ export interface IEvent {
   created_at: any;
   updated_at: any;
   organizer: IUser;
+  location: ILocation;
+  category: ICategory;
+  ticket_types: ITicketType[];
 }
 
 export interface IUser {
@@ -22,6 +25,16 @@ export interface IUser {
   role: 'ORGANIZER' | 'CUSTOMER';
   points?: number;
   profile_picture?: string;
+}
+
+export interface ILocation {
+  id: string;
+  label: string;
+}
+
+export interface ICategory {
+  id: string;
+  label: string;
 }
 
 export interface ITicketType {

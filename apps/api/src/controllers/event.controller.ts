@@ -113,6 +113,11 @@ export class EventController {
     try {
       const data = await prisma.event.findUnique({
         where: { id: id },
+        include: {
+          location: true,
+          category: true,
+          ticket_types: true,
+        },
       });
 
       return res.status(200).send({
