@@ -2,12 +2,15 @@
 import { ITicketDetail } from '@/app/events/[event_id]/page';
 import { ITicketType } from '@/types/event.interface';
 import React, { useState } from 'react';
+import dayjs from 'dayjs';
 
 function TicketCard({
   id,
   title,
   price,
   available_seats,
+  start_date,
+  end_date,
   setCheckoutTotal,
   setCheckoutTickets,
 }: ITicketType & {
@@ -83,7 +86,10 @@ function TicketCard({
           </button>
         </div>
 
-        <div className="text-xs">Read More</div>
+        <div className="text-xs">
+          {dayjs(start_date).format('DD MMM, YYYY')} -{' '}
+          {dayjs(end_date).format('DD MMM, YYYY')}
+        </div>
       </div>
     </div>
   );

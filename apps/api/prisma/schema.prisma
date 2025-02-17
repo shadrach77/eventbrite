@@ -131,29 +131,28 @@ model Review {
 }
 
 model Transaction {
-  id                     String   @id @default(uuid())
+  id                     String      @id @default(uuid())
   customer_id            String
-  customer               User     @relation(fields: [customer_id], references: [id])
-  ticket_type_id         String
-  quantity               Int
+  customer               User        @relation(fields: [customer_id], references: [id])
+  status                 StatusLabel @default(PENDING_PAYMENT)
+  points_used            Int         @default(0)
+  promotion_id           String?
+  grand_total            Int
   payment_proof          String?
   payment_proof_deadline DateTime
   acceptance_deadline    DateTime
-  points_used            Int
-  promotion_used         String?
-  created_at             DateTime @default(now())
-  updated_at             DateTime @updatedAt
+  created_at             DateTime    @default(now())
+  updated_at             DateTime    @updatedAt
 
-  status Status?
+  TransactionTickets TransactionTicket[]
 
   @@map("transactions")
 }
 
-model Status {
+model TransactionTicket {
   id             String      @id @default(uuid())
   transaction_id String      @unique
   transaction    Transaction @relation(fields: [transaction_id], references: [id])
-  status         StatusLabel
 
-  @@map("status")
+  @@map("transaction_tickets")
 }

@@ -8,6 +8,8 @@ import ScreenCenter from '@/components/global/ScreenCenter';
 import dayjs from 'dayjs';
 import TicketCard from '@/components/home/TicketCard';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   params: {
@@ -26,7 +28,8 @@ function Page({ params: { event_id } }: Props) {
   const [checkoutTickets, setCheckoutTickets] = useState<ITicketDetail[] | []>(
     [],
   );
-  console.log('event.ticket_types =>', event?.ticket_types);
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     async function getEvent() {
@@ -37,7 +40,13 @@ function Page({ params: { event_id } }: Props) {
     getEvent();
   }, [event_id]);
 
-  function checkout() {}
+  function checkout() {
+    if (!session?.user) {
+      router.push('/sign-in');
+    } else {
+      //todo: implement adding to transaction
+    }
+  }
 
   return (
     <>
