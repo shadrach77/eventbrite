@@ -91,7 +91,9 @@ function EventCard({
         <Image
           src={picture ? picture : defaultEventPicture}
           alt={`${title} event picture`}
-          className=" h-full"
+          width={500}
+          height={500}
+          className=" h-full object-cover"
         />
       </div>
 

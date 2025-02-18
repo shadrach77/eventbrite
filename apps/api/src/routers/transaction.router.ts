@@ -15,12 +15,24 @@ export class TransactionRouter {
   }
 
   private initializeRoutes(): void {
+    this.router.get(
+      '/my-transactions',
+      verifyJwtMiddleware,
+      verifyCustomerRoleMiddleware,
+      this.transactionController.getAllMyTransactions,
+    );
     this.router.post(
       '/',
       verifyJwtMiddleware,
       verifyCustomerRoleMiddleware,
       validateTransactionBody,
       this.transactionController.createTransaction,
+    );
+    this.router.delete(
+      '/my-transactions/:transaction_id',
+      verifyJwtMiddleware,
+      verifyCustomerRoleMiddleware,
+      this.transactionController.cancelMyTransaction,
     );
   }
 

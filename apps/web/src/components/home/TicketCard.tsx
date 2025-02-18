@@ -31,9 +31,9 @@ function TicketCard({
       );
 
       if (existingIndex >= 0) {
-        array[existingIndex].amount += 1;
+        array[existingIndex].quantity += 1;
       } else {
-        array.push({ ticket_id: id, amount: 1 });
+        array.push({ ticket_id: id, quantity: 1 });
       }
       return array;
     });
@@ -51,8 +51,8 @@ function TicketCard({
       );
 
       if (existingIndex >= 0) {
-        array[existingIndex].amount -= 1;
-        if (array[existingIndex].amount <= 0) array.splice(existingIndex, 1);
+        array[existingIndex].quantity -= 1;
+        if (array[existingIndex].quantity <= 0) array.splice(existingIndex, 1);
       }
       return array;
     });

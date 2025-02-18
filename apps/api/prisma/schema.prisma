@@ -155,7 +155,7 @@ model Transaction {
 model TransactionTicket {
   id             String      @id @default(uuid())
   transaction_id String
-  transaction    Transaction @relation(fields: [transaction_id], references: [id])
+  transaction    Transaction @relation(fields: [transaction_id], references: [id], onDelete: Cascade)
   ticket_id      String
   quantity       Int
 

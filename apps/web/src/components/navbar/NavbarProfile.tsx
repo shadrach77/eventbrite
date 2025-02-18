@@ -45,9 +45,12 @@ function NavbarProfile() {
             My Events
           </Link>
         ) : (
-          <div className="h-12 flex items-center px-4 hover:bg-secondaryBackground">
+          <Link
+            href={'/my-tickets'}
+            className="h-12 flex items-center px-4 hover:bg-secondaryBackground"
+          >
             My Tickets
-          </div>
+          </Link>
         )}
         <button
           onClick={() => {

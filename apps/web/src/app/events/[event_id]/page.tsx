@@ -19,7 +19,7 @@ type Props = {
 
 export interface ITicketDetail {
   ticket_id: string;
-  amount: number;
+  quantity: number;
 }
 
 function Page({ params: { event_id } }: Props) {
@@ -44,7 +44,23 @@ function Page({ params: { event_id } }: Props) {
     if (!session?.user) {
       router.push('/sign-in');
     } else {
-      //todo: implement adding to transaction
+      async function createTransaction() {
+        const createdTransaction = await api(
+          `transactions`,
+          'POST',
+          {
+            body: {
+              tickets: checkoutTickets,
+              event_id: event_id,
+              use_points_boolean: false,
+            },
+            contentType: 'application/json',
+          },
+          session?.user.authentication_token,
+        );
+      }
+      createTransaction();
+      router.push('/my-tickets');
     }
   }
 
@@ -54,6 +70,8 @@ function Page({ params: { event_id } }: Props) {
         <Image
           src={event?.picture ? event.picture : defaultEventPicture}
           alt={`${event?.title} event banner`}
+          width={500}
+          height={500}
           className="w-screen max-w-[1200px] max-h-96 object-cover"
         />
         <ScreenCenter>
@@ -132,8 +150,25 @@ function Page({ params: { event_id } }: Props) {
         </ScreenCenter>
       </div>
       <div className="lg:hidden flex p-4 fixed bottom-0 left-0 right-0 border-t-2 border-2 border-secondaryBackground">
-        <button className="bg-primaryOrange w-full h-10 p-4 text-sm flex justify-center items-center">
+        <Link
+          href={'#tickets'}
+          className={
+            checkoutTickets.length
+              ? 'hidden'
+              : 'bg-primaryOrange w-full h-10 p-4 text-sm flex justify-center items-center'
+          }
+        >
           Buy Tickets
+        </Link>
+        <button
+          className={
+            checkoutTickets.length
+              ? 'bg-primaryOrange w-full h-10 p-4 text-sm flex justify-center items-center'
+              : 'hidden'
+          }
+          onClick={checkout}
+        >
+          {`Check out For Rp.${checkoutTotal.toLocaleString()}`}
         </button>
       </div>
     </>

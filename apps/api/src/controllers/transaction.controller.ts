@@ -79,13 +79,13 @@ export class TransactionController {
         calculatedGrandTotal = calculatedGrandTotal - promotionDetails?.amount;
       }
 
-      let pointsUsed = points_used ?? 0;
+      let pointsUsed = 0;
 
       if (use_points_boolean === true) {
         pointsUsed = req.user.points ?? 0;
       }
 
-      if (points_used) {
+      if (use_points_boolean === true) {
         calculatedGrandTotal = calculatedGrandTotal - pointsUsed;
       }
 
@@ -123,5 +123,50 @@ export class TransactionController {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async getAllMyTransactions(req: Request, res: Response) {
+    try {
+      if (!req?.user?.id) {
+        return res.status(400).send({
+          message: `Failed to get all my transactions because there's no req.user.id in JWT.`,
+        });
+      }
+
+      const allMyTransactions = await prisma.transaction.findMany({
+        where: {
+          customer_id: req.user?.id,
+        },
+      });
+
+      res.status(200).send({
+        message: `Successfully fetched all transactions belonging to customer with User ID ${req.user.id}`,
+        data: allMyTransactions,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async cancelMyTransaction(req: Request, res: Response) {
+    const { transaction_id } = req.params;
+
+    if (!transaction_id) {
+      res.status(403).send({
+        message: `Couldn't cancel transaction without 'my_transaction' as params.`,
+      });
+    }
+
+    const canceledTransaction = await prisma.transaction.update({
+      data: {
+        status: 'CANCELED',
+      },
+      where: { id: transaction_id },
+    });
+
+    return res.status(201).send({
+      message: `Successfully cancel transaction with transaction_id ${transaction_id}`,
+      data: canceledTransaction,
+    });
   }
 }

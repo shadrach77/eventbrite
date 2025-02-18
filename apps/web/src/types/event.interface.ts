@@ -59,3 +59,18 @@ export interface IPromotionType {
   created_at: any;
   updated_at: any;
 }
+
+export interface ITransaction {
+  id: string;
+  event_id: string;
+  customer_id: string;
+  status: string;
+  points_used?: number;
+  grand_total: number;
+  promotion_id?: string;
+  payment_proof?: string;
+  payment_proof_deadline: any;
+  acceptance_deadline: any;
+  created_at: any;
+  updated_at: any;
+}

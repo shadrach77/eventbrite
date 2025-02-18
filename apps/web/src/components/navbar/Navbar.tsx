@@ -84,9 +84,12 @@ function Navbar() {
                   Dashboard
                 </Link>
               ) : (
-                <div className="whitespace-nowrap hidden lg:flex items-center h-full px-4 rounded-3xl bg-blue-200">
+                <Link
+                  href={'/my-tickets'}
+                  className="whitespace-nowrap hidden lg:flex items-center h-full px-4 rounded-3xl bg-blue-200"
+                >
                   My Tickets
-                </div>
+                </Link>
               )
             ) : (
               <Link
