@@ -1,4 +1,4 @@
-import { PromotionController } from '@/controllers/promotion.controller.ts';
+import { PromotionController } from '@/controllers/promotion.controller';
 import { verifyJwtMiddleware } from '@/middlewares/jwt.middleware';
 import { verifyOrganizerRoleMiddleware } from '@/middlewares/role.middleware';
 import { validatePromotionBody } from '@/middlewares/promotion.middleware';

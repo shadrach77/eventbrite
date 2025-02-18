@@ -14,7 +14,7 @@ const transactionSchema = z.object({
   payment_proof: z.string().optional(),
   use_points_boolean: z.boolean(),
   promotion_id: z.string().optional(),
-  tickets: z.array(transactionTicketSchema),
+  tickets: z.array(transactionTicketSchema).optional(),
 });
 
 export const validateTransactionBody = (

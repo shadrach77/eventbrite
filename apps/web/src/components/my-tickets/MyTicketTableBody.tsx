@@ -100,17 +100,24 @@ function MyTicketTableBody({
         >
           Cancel
         </button>
-        <Link
-          href={`/my-events/payment/${id}`}
-          className="flex gap-1.5 items-center py-1 px-2 rounded-sm text-white bg-green-600"
-        >
-          <div>Pay</div>
-          <Image
-            src={paymentIcon}
-            alt="payment icon"
-            className="h-4 w-4"
-          ></Image>
-        </Link>
+
+        {['DONE', 'REJECTED', 'EXPIRED', 'CANCELED'].includes(status) ? (
+          <button
+            disabled
+            className="flex gap-1.5 items-center py-1 px-2 rounded-sm text-white bg-gray-400 cursor-not-allowed"
+          >
+            <div>Pay</div>
+            <Image src={paymentIcon} alt="payment icon" className="h-4 w-4" />
+          </button>
+        ) : (
+          <Link
+            href={`/my-tickets/payment/${id}`}
+            className="flex gap-1.5 items-center py-1 px-2 rounded-sm text-white bg-green-600"
+          >
+            <div>Pay</div>
+            <Image src={paymentIcon} alt="payment icon" className="h-4 w-4" />
+          </Link>
+        )}
       </div>
       <Toaster richColors></Toaster>
     </div>

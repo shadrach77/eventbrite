@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '@/prisma';
-import { addHours } from 'date-fns';
+import { addDays, addHours } from 'date-fns';
+import { cloudinaryUpload } from '@/helpers/cloudinary';
 
 interface ITransactionTicket {
   id?: string;
@@ -125,6 +126,22 @@ export class TransactionController {
     }
   }
 
+  async uploadTransactionPicture(req: Request, res: Response) {
+    const { file } = req;
+    if (!file) {
+      return res.status(400).send({
+        message: "There's no image to upload.",
+      });
+    }
+
+    const { secure_url } = await cloudinaryUpload(file);
+
+    res.status(201).send({
+      message: `Image with link ${secure_url} successfully uploaded.`,
+      data: secure_url,
+    });
+  }
+
   async getAllMyTransactions(req: Request, res: Response) {
     try {
       if (!req?.user?.id) {
@@ -146,6 +163,100 @@ export class TransactionController {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async getTransactionById(req: Request, res: Response) {
+    try {
+      const { transaction_id } = req.params;
+      if (!transaction_id) {
+        return res.status(400).send({
+          message: `Failed to fetch a specific transaction because there's no transaction_id in params.`,
+        });
+      }
+
+      const transaction = await prisma.transaction.findUnique({
+        where: {
+          id: transaction_id,
+        },
+      });
+
+      if (!transaction) {
+        return res.status(404).send({
+          message: `Failed to fetch transaction with transaction_id ${transaction_id} because it doesn't exist.`,
+        });
+      }
+
+      res.status(200).send({
+        message: `Successfully fetched transaction ID ${transaction_id}`,
+        data: transaction,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async updateMyTransaction(req: Request, res: Response) {
+    const { use_points_boolean, promotion_code, payment_proof, event_id } =
+      req.body;
+    const { transaction_id } = req.params;
+
+    const transactionDetails = await prisma.transaction.findUnique({
+      where: {
+        id: transaction_id,
+        customer_id: req.user?.id,
+      },
+    });
+
+    if (!transactionDetails) {
+      return res.status(404).send({
+        message: `Couldn't update transaction with transaction_id ${transaction_id} because it either doesn't exist or doesn't belong to you`,
+      });
+    }
+
+    let calculatedGrandTotal = transactionDetails?.grand_total;
+    let updatedPromotionId = transactionDetails.promotion_id;
+
+    if (promotion_code && event_id) {
+      const promotionDetails = await prisma.promotion.findFirst({
+        where: {
+          code: promotion_code,
+          event_id: event_id,
+        },
+      });
+
+      if (!promotionDetails) {
+        return res.status(404).send({
+          message: `Your promotion_code ${promotion_code} is either not applicable for this event or not found.`,
+        });
+      }
+
+      calculatedGrandTotal = calculatedGrandTotal - promotionDetails?.amount;
+      updatedPromotionId = promotionDetails.id;
+    }
+
+    if (!payment_proof) {
+      return res.status(404).send({
+        message: `Couldn't complete transaction without payment_proof`,
+      });
+    }
+
+    let updatedPointsUsed = 0;
+
+    if (use_points_boolean) {
+      updatedPointsUsed = Number(req.user?.points);
+      calculatedGrandTotal = calculatedGrandTotal - updatedPointsUsed;
+    }
+
+    const data = await prisma.transaction.update({
+      data: {
+        promotion_id: updatedPromotionId,
+        payment_proof: payment_proof,
+        points_used: updatedPointsUsed,
+        status: 'PENDING_ADMIN_CONFIRMATION',
+        acceptance_deadline: addDays(new Date(), 3),
+      },
+      where: { id: req.params.transaction_id },
+    });
   }
 
   async cancelMyTransaction(req: Request, res: Response) {
