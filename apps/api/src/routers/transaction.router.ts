@@ -1,4 +1,6 @@
 import { TransactionController } from '@/controllers/transaction.controller';
+import { verifyJwtMiddleware } from '@/middlewares/jwt.middleware';
+import { verifyCustomerRoleMiddleware } from '@/middlewares/role.middleware';
 import { validateTransactionBody } from '@/middlewares/transaction.middleware';
 import { Router } from 'express';
 
@@ -13,7 +15,13 @@ export class TransactionRouter {
   }
 
   private initializeRoutes(): void {
-    // this.router.post('/', validateTransactionBody ,this.transactionController.createTransaction);
+    this.router.post(
+      '/',
+      verifyJwtMiddleware,
+      verifyCustomerRoleMiddleware,
+      validateTransactionBody,
+      this.transactionController.createTransaction,
+    );
   }
 
   getRouter(): Router {

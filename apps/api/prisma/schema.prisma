@@ -60,7 +60,8 @@ model Event {
 
   ticket_types TicketType[]
   promotions   Promotion[]
-  review       Review[]
+  reviews      Review[]
+  transaction  Transaction[]
 
   @@map("events")
 }
@@ -132,6 +133,8 @@ model Review {
 
 model Transaction {
   id                     String      @id @default(uuid())
+  event_id               String
+  event                  Event       @relation(fields: [event_id], references: [id])
   customer_id            String
   customer               User        @relation(fields: [customer_id], references: [id])
   status                 StatusLabel @default(PENDING_PAYMENT)
@@ -140,7 +143,7 @@ model Transaction {
   grand_total            Int
   payment_proof          String?
   payment_proof_deadline DateTime
-  acceptance_deadline    DateTime
+  acceptance_deadline    DateTime?
   created_at             DateTime    @default(now())
   updated_at             DateTime    @updatedAt
 
@@ -151,8 +154,10 @@ model Transaction {
 
 model TransactionTicket {
   id             String      @id @default(uuid())
-  transaction_id String      @unique
+  transaction_id String
   transaction    Transaction @relation(fields: [transaction_id], references: [id])
+  ticket_id      String
+  quantity       Int
 
   @@map("transaction_tickets")
 }
