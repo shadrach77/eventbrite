@@ -8,28 +8,28 @@ import { useSession } from 'next-auth/react';
 
 function PromotionTableHead({ event_id }: { event_id: string }) {
   const { data: session, status } = useSession();
-  const [promotionTitle, setPromotionTitle] = useState('');
+  const [eventTitle, setEventTitle] = useState('');
   useEffect(() => {
-    async function getPromotionTitle() {
+    async function getEventTitle() {
       try {
         const response = await api(
-          `promotions/my-promotions/${event_id}`,
+          `events/my-events/${event_id}`,
           'GET',
           {},
           session?.user.authentication_token,
         );
-        setPromotionTitle(response.data.title);
+        setEventTitle(response.data.title);
       } catch (error) {
         console.log(error);
       }
     }
-    getPromotionTitle();
+    getEventTitle();
   }, [event_id, session?.user.authentication_token]);
 
   return (
     <div className="flex flex-row gap-4 justify-between items-center px-4 py-2 w-full bg-blue-400">
       <div className="text-secondaryText sm:truncate mr-2">
-        Promotions For {promotionTitle}
+        Promotions For {eventTitle}
       </div>
       <Link
         href={`/dashboard/events/${event_id}/promotions/new`}
