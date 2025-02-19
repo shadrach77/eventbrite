@@ -101,7 +101,13 @@ function MyTicketTableBody({
           Cancel
         </button>
 
-        {['DONE', 'REJECTED', 'EXPIRED', 'CANCELED'].includes(status) ? (
+        {[
+          'DONE',
+          'REJECTED',
+          'EXPIRED',
+          'CANCELED',
+          'PENDING_ADMIN_CONFIRMATION',
+        ].includes(status) ? (
           <button
             disabled
             className="flex gap-1.5 items-center py-1 px-2 rounded-sm text-white bg-gray-400 cursor-not-allowed"

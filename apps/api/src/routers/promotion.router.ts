@@ -15,6 +15,8 @@ export class PromotionRouter {
   }
 
   private initializeRoutes(): void {
+    this.router.get('/', this.promotionController.getAllPromotionsByQuery);
+
     this.router.get(
       '/my-promotions',
       verifyJwtMiddleware,
@@ -23,17 +25,17 @@ export class PromotionRouter {
     );
 
     this.router.get(
-      '/my-promotions/byEventId/:eventId',
-      verifyJwtMiddleware,
-      verifyOrganizerRoleMiddleware,
-      this.promotionController.getAllMyPromotionsByEventId,
-    );
-
-    this.router.get(
       '/my-promotions/:id',
       verifyJwtMiddleware,
       verifyOrganizerRoleMiddleware,
       this.promotionController.getMyPromotionById,
+    );
+
+    this.router.get(
+      '/my-promotions/byEventId/:eventId',
+      verifyJwtMiddleware,
+      verifyOrganizerRoleMiddleware,
+      this.promotionController.getAllMyPromotionsByEventId,
     );
 
     this.router.post(

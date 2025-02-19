@@ -13,11 +13,11 @@ const ticketSchema = z.object({
       (val) => {
         const startDate = new Date(val);
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return startDate > today;
+        today.setHours(0, 0, 0, 0); // Normalize time to midnight
+        return startDate >= today; // Allows today or later
       },
       {
-        message: 'Start date must be after today',
+        message: 'Start date must be today or later',
       },
     )
     .transform((val) => new Date(val).toISOString),

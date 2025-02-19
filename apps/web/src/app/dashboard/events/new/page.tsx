@@ -28,7 +28,21 @@ const validationSchema = Yup.object({
   location: Yup.string().required('Please select a location.'),
   start_date: Yup.date()
     .required('Please select a valid date.')
-    .min(new Date(), "Start date must be after today's date"),
+    .test(
+      'is-today-or-after',
+      'Start date must be today or anytime after today',
+      function (value) {
+        if (!value) return false;
+
+        const selectedDate = new Date(value);
+        selectedDate.setHours(0, 0, 0, 0); // Normalize time to start of the day
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize current date
+
+        return selectedDate >= today;
+      },
+    ),
   end_date: Yup.date()
     .required('Please select a valid date')
     .test(

@@ -8,7 +8,7 @@ import * as Yup from 'yup';
 import { api } from '@/helpers/api';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { ITransaction } from '@/types/event.interface';
+import { IPromotionType, ITransaction } from '@/types/event.interface';
 
 type Props = {
   params: {
@@ -26,21 +26,95 @@ export default function Page({ params: { transaction_id } }: Props) {
   const { data: session, update } = useSession();
   const router = useRouter();
   const [disabled, setDisabled] = useState(false);
-  const [eventId, setEventId] = useState('');
+  const [disabledPromoFields, setDisabledPromoFields] = useState(false);
+  const [event, setEvent] = useState<ITransaction>();
+  const [updatedGrandTotalBeforePoints, setUpdatedGrandTotalBeforePoints] =
+    useState(0);
+  const [updatedGrandTotal, setUpdatedGrandTotal] = useState(0);
 
   useEffect(() => {
-    async function getEventId() {
+    async function getEvent() {
       try {
         const response = await api(`transactions/${transaction_id}`, 'GET');
-        const event_id = (response.data as ITransaction).event_id;
-        setEventId(event_id);
+        const event = response.data as ITransaction;
+        setEvent(event);
+        setUpdatedGrandTotalBeforePoints(event.grand_total);
       } catch (error) {
         toast.error('Failed to fetch event ID.');
         console.error(error);
       }
     }
-    getEventId();
+    getEvent();
   }, [transaction_id]);
+
+  async function applyPromotionCode() {
+    console.log(
+      'Applying promo:',
+      formik.values.promotion_code,
+      'Event ID:',
+      event?.event_id,
+    );
+    if (!event?.event_id) {
+      toast.error('Please try again');
+      return;
+    }
+
+    if (!formik.values.promotion_code) {
+      toast.success('Promo successfully removed');
+      setUpdatedGrandTotalBeforePoints(event.grand_total);
+      return;
+    }
+
+    setDisabledPromoFields(true);
+
+    try {
+      const response = await api(
+        `promotions?code=${formik.values.promotion_code}&eventId=${event.event_id}`,
+        'GET',
+      );
+
+      const promotionDetails = response.data as IPromotionType;
+
+      if (!promotionDetails || !promotionDetails.amount) {
+        toast.error('Invalid promotion code.');
+        setDisabledPromoFields(false);
+        return;
+      }
+
+      if (new Date() > new Date(promotionDetails.end_date)) {
+        toast.error('Expired promotion code.');
+        setDisabledPromoFields(false);
+        return;
+      }
+
+      if (new Date() < new Date(promotionDetails.start_date)) {
+        toast.error('Promotion has not started.');
+        setDisabledPromoFields(false);
+        return;
+      }
+
+      if (event.grand_total - promotionDetails.amount >= 0) {
+        setUpdatedGrandTotalBeforePoints(
+          event.grand_total - promotionDetails.amount,
+        );
+      } else {
+        setUpdatedGrandTotalBeforePoints(0);
+      }
+
+      toast.success(`Promo applied! Discount: ${promotionDetails.amount}`);
+      formik.setFieldValue(
+        'promotion_code',
+        formik.values.promotion_code,
+        false,
+      );
+      setDisabledPromoFields(false);
+    } catch (error) {
+      toast.error('Failed to apply promotion code. Please try again.');
+      setDisabledPromoFields(false);
+      setUpdatedGrandTotalBeforePoints(event.grand_total);
+      console.error(error);
+    }
+  }
 
   const formik = useFormik({
     initialValues: {
@@ -50,7 +124,7 @@ export default function Page({ params: { transaction_id } }: Props) {
     },
     validationSchema,
     onSubmit: async (values) => {
-      if (!eventId) {
+      if (!event?.event_id) {
         toast.error('Event ID is missing. Please wait or refresh the page.');
         return;
       }
@@ -101,7 +175,7 @@ export default function Page({ params: { transaction_id } }: Props) {
                 use_points_boolean: values.use_points_boolean,
                 promotion_code: values.promotion_code,
                 payment_proof: pictureUrl,
-                event_id: eventId,
+                event_id: event.event_id,
               }),
               headers: {
                 'Content-Type': 'application/json',
@@ -139,6 +213,37 @@ export default function Page({ params: { transaction_id } }: Props) {
     },
   });
 
+  useEffect(() => {
+    if (!event) return;
+
+    if (
+      formik.values.use_points_boolean &&
+      session?.user.points &&
+      typeof session?.user.points === 'number'
+    ) {
+      if (updatedGrandTotalBeforePoints - session?.user.points >= 0) {
+        return setUpdatedGrandTotal(
+          updatedGrandTotalBeforePoints - session?.user.points,
+        );
+      } else {
+        return setUpdatedGrandTotal(0);
+      }
+    }
+
+    if (
+      !formik.values.use_points_boolean &&
+      session?.user.points &&
+      typeof session?.user.points === 'number'
+    ) {
+      return setUpdatedGrandTotal(updatedGrandTotalBeforePoints);
+    }
+  }, [
+    formik.values.use_points_boolean,
+    event,
+    session?.user.points,
+    updatedGrandTotalBeforePoints,
+  ]);
+
   return (
     <div className="flex justify-center items-center w-full">
       <div className="w-full max-w-screen-md flex flex-col gap-8 m-12">
@@ -150,20 +255,29 @@ export default function Page({ params: { transaction_id } }: Props) {
         <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
           <div className="flex flex-col gap-2">
             <label htmlFor="promotion_code">Promotion Code (optional)</label>
-            <input
-              type="text"
-              name="promotion_code"
-              id="title"
-              className="bg-[#F7FBFF] w-full rounded-[12px] border border-[#D4D7E3] p-4"
-              placeholder="XXXX-XXXX-XXXX"
-              value={formik.values.promotion_code}
-              onChange={formik.handleChange}
-            />
-            {formik.touched.promotion_code && formik.errors.promotion_code && (
-              <div className="text-red-500 text-sm">
-                {formik.errors.promotion_code}
-              </div>
-            )}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                name="promotion_code"
+                id="title"
+                className="bg-[#F7FBFF] w-full rounded-[12px] border border-[#D4D7E3] p-4"
+                placeholder="XXXX-XXXX-XXXX"
+                value={formik.values.promotion_code}
+                onChange={formik.handleChange}
+              />
+              <button
+                className={
+                  disabled
+                    ? 'text-white bg-[#963232] p-4 rounded-[12px]'
+                    : 'text-white bg-[#162D3A] p-4 rounded-[12px] whitespace-nowrap'
+                }
+                disabled={disabledPromoFields}
+                onClick={applyPromotionCode}
+                type="button"
+              >
+                {disabled ? 'Applying' : 'Apply Code'}
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -197,6 +311,10 @@ export default function Page({ params: { transaction_id } }: Props) {
               onChange={formik.handleChange}
             />
             <label htmlFor="use_points_boolean">Use Points</label>
+          </div>
+
+          <div className="text-xl font-bold">
+            Grand Total: {updatedGrandTotal.toLocaleString()}
           </div>
 
           <button

@@ -254,6 +254,7 @@ export class TransactionController {
         points_used: updatedPointsUsed,
         status: 'PENDING_ADMIN_CONFIRMATION',
         acceptance_deadline: addDays(new Date(), 3),
+        grand_total: calculatedGrandTotal >= 0 ? calculatedGrandTotal : 0,
       },
       where: { id: req.params.transaction_id },
     });

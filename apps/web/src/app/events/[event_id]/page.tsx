@@ -112,16 +112,28 @@ function Page({ params: { event_id } }: Props) {
                 <div className="font-bold text-xl" id="tickets">
                   Tickets
                 </div>
-                {event?.ticket_types.map((ticket) => {
-                  return (
+                {event?.ticket_types
+                  .filter((ticket) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Normalize to midnight
+
+                    const startDate = new Date(ticket.start_date);
+                    const endDate = new Date(ticket.end_date);
+
+                    // Normalize start and end date to midnight
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate.setHours(0, 0, 0, 0);
+
+                    return startDate >= today && endDate >= today;
+                  })
+                  .map((ticket) => (
                     <TicketCard
                       key={ticket.id}
                       {...ticket}
                       setCheckoutTotal={setCheckoutTotal}
                       setCheckoutTickets={setCheckoutTickets}
-                    ></TicketCard>
-                  );
-                })}
+                    />
+                  ))}
               </div>
             </div>
             <div className="hidden lg:flex items-center max-w-96 min-h-20 h-full w-full p-4 border-4 rounded-xl border-secondaryBackground">
@@ -149,7 +161,7 @@ function Page({ params: { event_id } }: Props) {
           </div>
         </ScreenCenter>
       </div>
-      <div className="lg:hidden flex p-4 fixed bottom-0 left-0 right-0 border-t-2 border-2 border-secondaryBackground">
+      <div className="lg:hidden flex p-4 fixed bottom-0 left-0 right-0 border-t-2 border-2 border-secondaryBackground bg-white">
         <Link
           href={'#tickets'}
           className={

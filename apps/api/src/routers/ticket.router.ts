@@ -29,7 +29,11 @@ export class TicketRouter {
       this.ticketController.getAllMyTicketsByEventId,
     );
 
-    this.router.get('/my-tickets/:id', this.ticketController.getMyTicketById);
+    this.router.get(
+      '/my-tickets/:id',
+      verifyJwtMiddleware,
+      this.ticketController.getMyTicketById,
+    );
 
     this.router.post(
       '/my-tickets',

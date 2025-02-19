@@ -3,6 +3,68 @@ import prisma from '@/prisma';
 import { ILogin } from '@/interfaces/user.interface';
 
 export class PromotionController {
+  async getAllPromotionsByQuery(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    if (req.query.code && !req.query.eventId) {
+      const promotions = await prisma.promotion.findMany({
+        where: {
+          code: String(req.query.code),
+        },
+      });
+      if (!promotions)
+        return res.status(404).send({
+          message: `Promotion with code ${req.query.code} not found.`,
+        });
+      return res.status(200).send({
+        message: `Fetched all promotions with code ${req.query.code}`,
+        data: promotions,
+      });
+    }
+
+    if (req.query.eventId && !req.query.code) {
+      const promotions = await prisma.promotion.findMany({
+        where: {
+          event_id: String(req.query.eventId),
+        },
+      });
+      if (!promotions)
+        return res.status(404).send({
+          message: `Promotion with event_id ${req.query.eventId} not found.`,
+        });
+      return res.status(200).send({
+        message: `Fetched all promotions with event_id ${req.query.eventId}`,
+        data: promotions,
+      });
+    }
+
+    if (req.query.code && req.query.eventId) {
+      const promotion = await prisma.promotion.findFirst({
+        where: {
+          code: String(req.query.code),
+          event_id: String(req.query.eventId),
+        },
+      });
+
+      if (!promotion)
+        return res.status(404).send({
+          message: `Promotion with code ${req.query.code} and event_id ${req.query.eventId} not found.`,
+        });
+
+      return res.status(200).send({
+        message: `Fetched unique promotion with code ${req.query.code} and event_id ${req.query.eventId}`,
+        data: promotion,
+      });
+    }
+
+    const promotions = await prisma.promotion.findMany();
+    return res.status(200).send({
+      message: `Fetched all promotions`,
+      data: promotions,
+    });
+  }
   async getAllMyPromotions(req: Request, res: Response, next: NextFunction) {
     const { id } = req.user as ILogin;
     try {
