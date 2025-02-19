@@ -178,6 +178,31 @@ export class TransactionController {
     }
   }
 
+  async getAllMyAdminTransactions(req: Request, res: Response) {
+    try {
+      if (!req?.user?.id) {
+        return res.status(400).send({
+          message: `Failed to get all my transactions because there's no req.user.id in JWT.`,
+        });
+      }
+
+      const allMyTransactions = await prisma.transaction.findMany({
+        where: {
+          event: {
+            organizer_id: req.user?.id,
+          },
+        },
+      });
+
+      res.status(200).send({
+        message: `Successfully fetched all transactions belonging to organizer with User ID ${req.user.id}`,
+        data: allMyTransactions,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async getTransactionById(req: Request, res: Response) {
     try {
       const { transaction_id } = req.params;
@@ -338,6 +363,93 @@ export class TransactionController {
     return res.status(200).send({
       message: `Successfully cancel transaction with transaction_id ${transaction_id}`,
       data: canceledTransaction,
+    });
+  }
+
+  async rejectTransaction(req: Request, res: Response) {
+    const { transaction_id } = req.params;
+
+    if (!transaction_id) {
+      return res.status(403).send({
+        message: `Couldn't rejection transaction without 'transaction_id' as params.`,
+      });
+    }
+
+    const transactionDetails = await prisma.transaction.findUnique({
+      where: {
+        id: transaction_id,
+      },
+      include: {
+        TransactionTickets: true,
+      },
+    });
+
+    if (!transactionDetails) {
+      return res.status(404).send({
+        message: `Cannot delete transaction with transaction _id ${transaction_id} because it doesn't exist.`,
+      });
+    }
+
+    if (transactionDetails?.points_used) {
+      await prisma.user.update({
+        data: {
+          points: {
+            increment: transactionDetails.points_used,
+          },
+        },
+        where: {
+          id: transactionDetails.customer_id,
+        },
+      });
+    }
+
+    await Promise.all(
+      transactionDetails.TransactionTickets.map(async (transactionTicket) => {
+        await prisma.ticketType.update({
+          data: {
+            available_seats: {
+              increment: transactionTicket.quantity,
+            },
+          },
+          where: {
+            id: transactionTicket.ticket_id,
+          },
+        });
+      }),
+    );
+
+    const rejectedTransaction = await prisma.transaction.update({
+      data: {
+        status: 'REJECTED',
+      },
+      where: { id: transaction_id },
+    });
+
+    return res.status(200).send({
+      message: `Successfully rejected transaction with transaction_id ${transaction_id}`,
+      data: rejectedTransaction,
+    });
+  }
+
+  async acceptTransaction(req: Request, res: Response) {
+    const { transaction_id } = req.params;
+
+    if (!transaction_id) {
+      return res.status(403).send({
+        message: `Couldn't accept transaction without 'transaction_id' as params.`,
+      });
+    }
+
+    const acceptedTransaction = await prisma.transaction.update({
+      data: {
+        status: 'DONE',
+      },
+      where: { id: transaction_id },
+    });
+
+    return res.status(200).send({
+      message: `Successfully accepted transaction with transaction_id ${transaction_id}`,
+      data: acceptedTransaction,
     });
   }
 }

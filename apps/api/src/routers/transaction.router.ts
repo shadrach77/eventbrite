@@ -1,7 +1,10 @@
 import { TransactionController } from '@/controllers/transaction.controller';
 import { uploader } from '@/helpers/multer';
 import { verifyJwtMiddleware } from '@/middlewares/jwt.middleware';
-import { verifyCustomerRoleMiddleware } from '@/middlewares/role.middleware';
+import {
+  verifyCustomerRoleMiddleware,
+  verifyOrganizerRoleMiddleware,
+} from '@/middlewares/role.middleware';
 import { validateTransactionBody } from '@/middlewares/transaction.middleware';
 import { Router } from 'express';
 
@@ -23,6 +26,12 @@ export class TransactionRouter {
       this.transactionController.getAllMyTransactions,
     );
     this.router.get(
+      '/my-admin-transactions',
+      verifyJwtMiddleware,
+      verifyOrganizerRoleMiddleware,
+      this.transactionController.getAllMyAdminTransactions,
+    );
+    this.router.get(
       '/:transaction_id',
       this.transactionController.getTransactionById,
     );
@@ -40,6 +49,12 @@ export class TransactionRouter {
       uploader().single('picture'),
       this.transactionController.uploadTransactionPicture,
     );
+    this.router.post(
+      '/accept/:transaction_id',
+      verifyJwtMiddleware,
+      verifyOrganizerRoleMiddleware,
+      this.transactionController.acceptTransaction,
+    );
     this.router.patch(
       '/my-transactions/:transaction_id',
       verifyJwtMiddleware,
@@ -52,6 +67,12 @@ export class TransactionRouter {
       verifyJwtMiddleware,
       verifyCustomerRoleMiddleware,
       this.transactionController.cancelMyTransaction,
+    );
+    this.router.delete(
+      '/reject/:transaction_id',
+      verifyJwtMiddleware,
+      verifyOrganizerRoleMiddleware,
+      this.transactionController.rejectTransaction,
     );
   }
 
