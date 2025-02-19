@@ -114,6 +114,19 @@ export class TransactionController {
         }),
       );
 
+      await Promise.all(
+        tickets.map(async (ticket: ITransactionTicket) => {
+          return prisma.ticketType.update({
+            where: { id: ticket.ticket_id },
+            data: {
+              available_seats: {
+                decrement: ticket.quantity,
+              },
+            },
+          });
+        }),
+      );
+
       res.send({
         message: `Successfully created transaction and transactionTicket`,
         data: {
@@ -264,10 +277,53 @@ export class TransactionController {
     const { transaction_id } = req.params;
 
     if (!transaction_id) {
-      res.status(403).send({
+      return res.status(403).send({
         message: `Couldn't cancel transaction without 'my_transaction' as params.`,
       });
     }
+
+    const transactionDetails = await prisma.transaction.findUnique({
+      where: {
+        id: transaction_id,
+      },
+      include: {
+        TransactionTickets: true,
+      },
+    });
+
+    if (!transactionDetails) {
+      return res.status(404).send({
+        message: `Cannot delete transaction with transaction _id ${transaction_id} because it doesn't exist.`,
+      });
+    }
+
+    if (transactionDetails?.points_used) {
+      await prisma.user.update({
+        data: {
+          points: {
+            increment: transactionDetails.points_used,
+          },
+        },
+        where: {
+          id: transactionDetails.customer_id,
+        },
+      });
+    }
+
+    await Promise.all(
+      transactionDetails.TransactionTickets.map(async (transactionTicket) => {
+        await prisma.ticketType.update({
+          data: {
+            available_seats: {
+              increment: transactionTicket.quantity,
+            },
+          },
+          where: {
+            id: transactionTicket.ticket_id,
+          },
+        });
+      }),
+    );
 
     const canceledTransaction = await prisma.transaction.update({
       data: {
@@ -276,7 +332,7 @@ export class TransactionController {
       where: { id: transaction_id },
     });
 
-    return res.status(201).send({
+    return res.status(200).send({
       message: `Successfully cancel transaction with transaction_id ${transaction_id}`,
       data: canceledTransaction,
     });
