@@ -72,7 +72,6 @@ export class TicketController {
   }
 
   async getMyTicketById(req: Request, res: Response, next: NextFunction) {
-    const { id } = req.user as ILogin;
     try {
       if (!req.params.id || typeof String(req.params.id) !== 'string') {
         return res.status(401).send({
@@ -89,12 +88,6 @@ export class TicketController {
       if (!thisTicket) {
         return res.status(404).send({
           message: `Ticket_type with ID ${req.params.id} not found`,
-        });
-      }
-
-      if (thisTicket?.event.organizer_id !== id) {
-        return res.status(403).send({
-          message: `You do not have permission to get this ticket_type details`,
         });
       }
 

@@ -191,6 +191,9 @@ export class TransactionController {
         where: {
           id: transaction_id,
         },
+        include: {
+          TransactionTickets: true,
+        },
       });
 
       if (!transaction) {

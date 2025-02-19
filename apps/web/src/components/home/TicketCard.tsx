@@ -25,17 +25,17 @@ function TicketCard({
     setTicketAmount((prevAmount) => prevAmount + 1);
     setCheckoutTotal((prevAmount) => prevAmount + price);
     setCheckoutTickets((prev) => {
-      const array = [...prev];
-      const existingIndex = array.findIndex(
-        (ticket) => ticket.ticket_id === id,
-      );
-
-      if (existingIndex >= 0) {
-        array[existingIndex].quantity += 1;
-      } else {
-        array.push({ ticket_id: id, quantity: 1 });
-      }
-      return array;
+      return prev
+        .map((ticket) =>
+          ticket.ticket_id === id
+            ? { ...ticket, quantity: ticket.quantity + 1 }
+            : ticket,
+        )
+        .concat(
+          prev.some((ticket) => ticket.ticket_id === id)
+            ? []
+            : [{ ticket_id: id, quantity: 1 }],
+        );
     });
   }
 

@@ -8,7 +8,13 @@ import * as Yup from 'yup';
 import { api } from '@/helpers/api';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { IPromotionType, ITransaction } from '@/types/event.interface';
+import {
+  IPromotionType,
+  ITicketType,
+  ITransaction,
+  ITransactionAndTransactionTicket,
+  ITransactionTicket,
+} from '@/types/event.interface';
 
 type Props = {
   params: {
@@ -27,16 +33,17 @@ export default function Page({ params: { transaction_id } }: Props) {
   const router = useRouter();
   const [disabled, setDisabled] = useState(false);
   const [disabledPromoFields, setDisabledPromoFields] = useState(false);
-  const [event, setEvent] = useState<ITransaction>();
+  const [event, setEvent] = useState<ITransactionAndTransactionTicket>();
   const [updatedGrandTotalBeforePoints, setUpdatedGrandTotalBeforePoints] =
     useState(0);
   const [updatedGrandTotal, setUpdatedGrandTotal] = useState(0);
+  const [ticketTypeDetails, setTicketTypeDetails] = useState<ITicketType[]>([]);
 
   useEffect(() => {
     async function getEvent() {
       try {
         const response = await api(`transactions/${transaction_id}`, 'GET');
-        const event = response.data as ITransaction;
+        const event = response.data as ITransactionAndTransactionTicket;
         setEvent(event);
         setUpdatedGrandTotalBeforePoints(event.grand_total);
       } catch (error) {
@@ -244,6 +251,30 @@ export default function Page({ params: { transaction_id } }: Props) {
     updatedGrandTotalBeforePoints,
   ]);
 
+  useEffect(() => {
+    async function getTicketTypeDetails() {
+      if (!event?.TransactionTickets) return;
+
+      try {
+        const ticketDetails = await Promise.all(
+          event.TransactionTickets.map(async (transactionTicket) => {
+            const response = await api(
+              `tickets/my-tickets/${transactionTicket.ticket_id}`,
+              'GET',
+            );
+            return response.data;
+          }),
+        );
+
+        setTicketTypeDetails(ticketDetails);
+      } catch (error) {
+        console.error('Error fetching ticket details:', error);
+      }
+    }
+
+    getTicketTypeDetails();
+  }, [event]);
+
   return (
     <div className="flex justify-center items-center w-full">
       <div className="w-full max-w-screen-md flex flex-col gap-8 m-12">
@@ -313,7 +344,23 @@ export default function Page({ params: { transaction_id } }: Props) {
             <label htmlFor="use_points_boolean">Use Points</label>
           </div>
 
-          <div className="text-xl font-bold">
+          <div className="text-xl font-bold">Review Tickets</div>
+
+          {ticketTypeDetails.map((transactionTicket, i) => {
+            return (
+              <div className="flex justify-between w-full rounded-[12px] border border-[#D4D7E3] p-2">
+                <div>{transactionTicket.title}</div>
+                <div>{event?.TransactionTickets[i].quantity} Ticket(s)</div>
+              </div>
+            );
+          })}
+
+          <div className="flex justify-between w-full rounded-[12px] border border-[#D4D7E3] p-2">
+            <div>ABC</div>
+            <div>quantity: 2s</div>
+          </div>
+
+          <div className="text-2xl font-bold">
             Grand Total: {updatedGrandTotal.toLocaleString()}
           </div>
 

@@ -74,3 +74,26 @@ export interface ITransaction {
   created_at: any;
   updated_at: any;
 }
+
+export interface ITransactionAndTransactionTicket {
+  id: string;
+  event_id: string;
+  customer_id: string;
+  status: string;
+  points_used?: number;
+  grand_total: number;
+  promotion_id?: string;
+  payment_proof?: string;
+  payment_proof_deadline: any;
+  acceptance_deadline: any;
+  created_at: any;
+  updated_at: any;
+  TransactionTickets: ITransactionTicket[];
+}
+
+export interface ITransactionTicket {
+  id: string;
+  transaction_id: string;
+  ticket_id: string;
+  quantity: number;
+}
