@@ -11,7 +11,6 @@ export default function Home() {
 
   return (
     <ScreenCenter>
-      <div>{session?.user.email}</div>
       <Carousel />
       <FilterEvents />
     </ScreenCenter>

@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { IEvent } from '@/types/event.interface';
 import { api } from '@/helpers/api';
+import ScreenCenter from '@/components/global/ScreenCenter';
 
 function page() {
   const searchParams = useSearchParams();
@@ -22,15 +23,15 @@ function page() {
   }, [query]);
 
   return (
-    <div>
+    <ScreenCenter>
       {filteredEvents.length ? (
         filteredEvents.map((event: IEvent) => {
           return <EventCard {...event} key={event.id} />;
         })
       ) : (
-        <div>{`"${query}" is not found. Try a different keyword.`}</div>
+        <div>{`'${query}' is not found. Try a different keyword.`}</div>
       )}
-    </div>
+    </ScreenCenter>
   );
 }
 

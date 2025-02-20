@@ -16,6 +16,7 @@ import { CategoryRouter } from './routers/category.router';
 import { TicketRouter } from './routers/ticket.router';
 import { PromotionRouter } from './routers/promotion.router';
 import { TransactionRouter } from './routers/transaction.router';
+import { ReviewRouter } from './routers/review.router';
 
 export default class App {
   private app: Express;
@@ -64,6 +65,7 @@ export default class App {
     const ticketRouter = new TicketRouter();
     const promotionRouter = new PromotionRouter();
     const transactionRouter = new TransactionRouter();
+    const reviewRouter = new ReviewRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
@@ -75,6 +77,7 @@ export default class App {
     this.app.use('/api/tickets', ticketRouter.getRouter());
     this.app.use('/api/promotions', promotionRouter.getRouter());
     this.app.use('/api/transactions', transactionRouter.getRouter());
+    this.app.use('/api/reviews', reviewRouter.getRouter());
   }
 
   public start(): void {

@@ -161,6 +161,17 @@ function MyTicketTableBody({
             <Image src={paymentIcon} alt="payment icon" className="h-4 w-4" />
           </Link>
         )}
+
+        <Link
+          href={`/my-tickets/review/${id}`}
+          className={
+            status === 'DONE'
+              ? 'flex gap-1.5 items-center py-1 px-2 rounded-sm text-white bg-yellow-600'
+              : 'hidden'
+          }
+        >
+          Review
+        </Link>
       </div>
       <Toaster richColors></Toaster>
     </div>
