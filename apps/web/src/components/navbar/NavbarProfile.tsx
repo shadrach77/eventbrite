@@ -9,7 +9,7 @@ function NavbarProfile() {
   const { data: session, status } = useSession();
   return (
     <div className="whitespace-nowrap flex items-center h-full px-4 bg-blue-400 relative group hover:bg-secondaryBackground z-20">
-      <div className="flex items-center gap-2 ">
+      <div className="flex items-center gap-2">
         <Image
           src={
             session?.user.profile_picture
@@ -19,7 +19,7 @@ function NavbarProfile() {
           alt="profile picture"
           className="h-10 w-10 p-2 rounded-3xl bg-green-200"
         ></Image>
-        <div>{session?.user.email}</div>
+        <div className="">{session?.user.email}</div>
       </div>
       <div className="absolute bottom-0 left-0 right-0 translate-y-full hidden group-hover:flex flex-col bg-white">
         {session?.user.role === 'ORGANIZER' ? (

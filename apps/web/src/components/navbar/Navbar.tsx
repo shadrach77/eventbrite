@@ -15,21 +15,21 @@ function Navbar() {
   const { data: session, status } = useSession();
   return (
     <header className="flex justify-center items-center px-6 py-2 w-screen sticky bg-red-200 z-20">
-      <nav className="flex flex-col items-center w-full bg-green-200">
-        <div className="flex items-center justify-between h-12 w-full gap-4">
-          <Link href={'/'} className="h-7 w-7 block lg:hidden">
+      <nav className="flex flex-col items-center justify-center w-full bg-green-200">
+        <div className="flex items-center justify-between h-12 w-full gap-4 ">
+          <Link href={'/'} className="h-7 w-7 block lg:hidden flex-shrink-0">
             <Image
               src={eventbriteSmallLogo}
               alt="Eventbrite Logo"
-              className="h-7 w-7 block lg:hidden"
+              className="h-7 w-7 block lg:hidden flex-shrink-0"
             ></Image>
           </Link>
 
-          <Link href={'/'} className="h-28 w-28 hidden lg:block">
+          <Link href={'/'} className="h-28 w-28 hidden lg:block flex-shrink-0">
             <Image
               src={eventbriteBigLogo}
               alt="Eventbrite Logo"
-              className="h-28 w-28 hidden lg:block"
+              className="h-28 w-28 hidden lg:block flex-shrink-0"
             ></Image>
           </Link>
 

@@ -4,6 +4,7 @@ import { IEvent } from '@/types/event.interface';
 import { filter } from 'cypress/types/bluebird';
 import React, { useEffect, useState } from 'react';
 import EventCard from './EventCard';
+import ScreenCenter from '../global/ScreenCenter';
 
 interface ILocation {
   id: string;
@@ -86,7 +87,7 @@ function FilterEvents() {
   return (
     <>
       <div className="mt-8 flex h-16 items-center border-t border-b border-gray-500 w-full">
-        <div>Browsing Events In</div>
+        <div className="mx-4">Browsing Events In</div>
 
         <form className="ml-1">
           {' '}
@@ -114,7 +115,7 @@ function FilterEvents() {
           </select>
         </form>
       </div>
-      <div className="flex gap-4 mt-5 w-full">
+      <div className="flex gap-4 mt-5 w-full mb-12 px-4">
         {allCategories.map((category: ICategory) => (
           <label key={category.id}>
             <input
@@ -136,8 +137,8 @@ function FilterEvents() {
             </span>
           </label>
         ))}
-      </div>
-      <div>
+      </div>{' '}
+      <div className="flex flex-col md:flex-row md:justify-center gap-8 mb-36 px-4 flex-wrap">
         {filteredEvents.map((event: IEvent) => {
           return <EventCard {...event} key={event.id} />;
         })}
