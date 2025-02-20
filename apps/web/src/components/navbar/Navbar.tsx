@@ -17,16 +17,22 @@ function Navbar() {
     <header className="flex justify-center items-center px-6 py-2 w-screen sticky bg-red-200 z-20">
       <nav className="flex flex-col items-center w-full bg-green-200">
         <div className="flex items-center justify-between h-12 w-full gap-4">
-          <Image
-            src={eventbriteSmallLogo}
-            alt="Eventbrite Logo"
-            className="h-7 w-7 block lg:hidden"
-          ></Image>
-          <Image
-            src={eventbriteBigLogo}
-            alt="Eventbrite Logo"
-            className="h-28 w-28 hidden lg:block"
-          ></Image>
+          <Link href={'/'} className="h-7 w-7 block lg:hidden">
+            <Image
+              src={eventbriteSmallLogo}
+              alt="Eventbrite Logo"
+              className="h-7 w-7 block lg:hidden"
+            ></Image>
+          </Link>
+
+          <Link href={'/'} className="h-28 w-28 hidden lg:block">
+            <Image
+              src={eventbriteBigLogo}
+              alt="Eventbrite Logo"
+              className="h-28 w-28 hidden lg:block"
+            ></Image>
+          </Link>
+
           <div className=" hidden md:flex max-w-[43.75rem] justify-center items-center h-10 w-full relative">
             <Image
               src={searchIcon}
@@ -42,13 +48,16 @@ function Navbar() {
                 setSearchedValue(e.target.value);
               }}
             ></input>
-            <div className="absolute right-1 top-1 h-8 w-8 flex justify-center items-center rounded-3xl bg-secondaryOrange ">
+            <Link
+              href={`/search?q=${searchedValue}`}
+              className="absolute right-1 top-1 h-8 w-8 flex justify-center items-center rounded-3xl bg-secondaryOrange "
+            >
               <Image
                 src={searchIconWhite}
                 alt="search icon"
                 className=" w-4 h-4 fill-white"
               ></Image>
-            </div>
+            </Link>
           </div>
           <div
             className={
@@ -127,13 +136,16 @@ function Navbar() {
               setSearchedValue(e.target.value);
             }}
           ></input>
-          <div className="absolute right-1 top-1 h-8 w-8 flex justify-center items-center rounded-3xl bg-secondaryOrange ">
+          <Link
+            href={`/search?q=${searchedValue}`}
+            className="absolute right-1 top-1 h-8 w-8 flex justify-center items-center rounded-3xl bg-secondaryOrange "
+          >
             <Image
               src={searchIconWhite}
               alt="search icon"
               className=" w-4 h-4 fill-white"
             ></Image>
-          </div>
+          </Link>
         </div>
       </nav>
     </header>

@@ -57,6 +57,22 @@ export class EventController {
         });
       }
 
+      if (req.query.q) {
+        const data = await prisma.event.findMany({
+          where: {
+            title: {
+              contains: String(req.query.q),
+              mode: 'insensitive',
+            },
+          },
+        });
+
+        return res.status(200).send({
+          message: `Successfully fetched all events wherein its title contains ${req.query.q}.`,
+          data: data,
+        });
+      }
+
       const data = await prisma.event.findMany({
         include: {
           organizer: true,
