@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import prisma from '@/prisma';
 import { ILogin } from '@/interfaces/user.interface';
+import { startOfDay } from 'date-fns';
 
 export class PromotionController {
   async getAllPromotionsByQuery(
@@ -188,6 +189,27 @@ export class PromotionController {
         });
       }
 
+      const eventDetails = await prisma.event.findUnique({
+        where: {
+          id: req.body.event_id,
+        },
+      });
+
+      if (!eventDetails) {
+        return res.status(404).send({ message: 'Event not found.' });
+      }
+
+      if (
+        startOfDay(new Date(req.body.start_date)) <
+          startOfDay(new Date(String(eventDetails?.start_date))) ||
+        startOfDay(new Date(req.body.end_date)) >
+          startOfDay(new Date(String(eventDetails?.end_date)))
+      ) {
+        return res.status(403).send({
+          message: `Promotion start date and end date must be within the event's start and end date.`,
+        });
+      }
+
       const data = await prisma.promotion.create({
         data: {
           ...req.body,
@@ -230,6 +252,27 @@ export class PromotionController {
       if (thisPromotion?.event.organizer_id !== id) {
         return res.status(403).send({
           message: `You do not have permission to update this promotion`,
+        });
+      }
+
+      const eventDetails = await prisma.event.findUnique({
+        where: {
+          id: req.body.event_id,
+        },
+      });
+
+      if (!eventDetails) {
+        return res.status(404).send({ message: 'Event not found.' });
+      }
+
+      if (
+        startOfDay(new Date(req.body.start_date)) <
+          startOfDay(new Date(String(eventDetails?.start_date))) ||
+        startOfDay(new Date(req.body.end_date)) >
+          startOfDay(new Date(String(eventDetails?.end_date)))
+      ) {
+        return res.status(403).send({
+          message: `Promotion start date and end date must be within the event's start and end date.`,
         });
       }
 
