@@ -2,6 +2,26 @@ import { NextFunction, Request, Response } from 'express';
 import prisma from '@/prisma';
 
 export class ReviewController {
+  async getReviewById(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(404).send({
+        message: `Couldn't fetch a specific review by id because id is not provided. `,
+      });
+    }
+
+    const review = await prisma.review.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    res.status(200).send({
+      message: `Successfully fetched review with id ${id}.`,
+      data: review,
+    });
+  }
   async createReview(req: Request, res: Response, next: NextFunction) {
     try {
       const { rating, description, transaction_id, event_id } = req.body;
@@ -69,5 +89,26 @@ export class ReviewController {
     } catch (error) {
       next(error);
     }
+  }
+
+  async getReviewsByEventId(req: Request, res: Response, next: NextFunction) {
+    const { event_id } = req.params;
+
+    if (!event_id) {
+      return res.status(404).send({
+        message: `Couldn't fetch reviews by event_id because event_id is not provided. `,
+      });
+    }
+
+    const reviews = await prisma.review.findMany({
+      where: {
+        event_id: event_id,
+      },
+    });
+
+    res.status(200).send({
+      message: `Successfully fetched all reviews with event_id ${event_id}.`,
+      data: reviews,
+    });
   }
 }

@@ -97,3 +97,14 @@ export interface ITransactionTicket {
   ticket_id: string;
   quantity: number;
 }
+
+export interface IReviewType {
+  id: string;
+  customer_id: string;
+  transaction_id: string;
+  event_id: string;
+  rating: number;
+  description: string;
+  created_at: any;
+  updated_at: any;
+}

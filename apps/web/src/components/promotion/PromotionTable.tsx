@@ -8,6 +8,7 @@ import { api } from '@/helpers/api';
 import { useSession } from 'next-auth/react';
 import { IEvent, IPromotionType } from '@/types/event.interface';
 import PromotionTableHead from './PromotionTableHead';
+import PromotionTableBody from './PromotionTableBody';
 
 function PromotionTable({ event_id }: { event_id: string }) {
   const { data: session } = useSession();
@@ -35,7 +36,7 @@ function PromotionTable({ event_id }: { event_id: string }) {
       <PromotionTableHead event_id={event_id} />
       {myPromotions.map((promotion) => {
         return (
-          <TicketTableBody
+          <PromotionTableBody
             key={promotion.id}
             {...promotion}
             setMyPromotions={setMyPromotions}

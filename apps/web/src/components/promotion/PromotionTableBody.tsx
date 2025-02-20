@@ -10,7 +10,7 @@ import { User } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import { toast, Toaster } from 'sonner';
 
-function TicketTableBody({
+function PromotionTableBody({
   id,
   code,
   amount,
@@ -90,4 +90,4 @@ function TicketTableBody({
   );
 }
 
-export default TicketTableBody;
+export default PromotionTableBody;
