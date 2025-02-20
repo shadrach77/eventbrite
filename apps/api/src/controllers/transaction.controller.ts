@@ -286,6 +286,13 @@ export class TransactionController {
     if (use_points_boolean) {
       updatedPointsUsed = Number(req.user?.points);
       calculatedGrandTotal = calculatedGrandTotal - updatedPointsUsed;
+
+      const customerDetails = await prisma.user.update({
+        where: { id: transactionDetails.customer_id },
+        data: {
+          points: 0,
+        },
+      });
     }
 
     const data = await prisma.transaction.update({
@@ -298,6 +305,10 @@ export class TransactionController {
         grand_total: calculatedGrandTotal >= 0 ? calculatedGrandTotal : 0,
       },
       where: { id: req.params.transaction_id },
+    });
+
+    res.status(200).send({
+      message: `Transaction with transaction_id ${transaction_id} successfully updated.`,
     });
   }
 

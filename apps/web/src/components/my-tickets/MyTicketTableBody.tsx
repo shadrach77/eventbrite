@@ -9,6 +9,8 @@ import { api } from '@/helpers/api';
 import { User } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import { toast, Toaster } from 'sonner';
+import dayjs from 'dayjs';
+import timerIcon from '@/media/icons/timer-icon.svg';
 
 function MyTicketTableBody({
   id,
@@ -20,6 +22,31 @@ function MyTicketTableBody({
 }: ITransaction & {
   setMyTransactions: React.Dispatch<React.SetStateAction<ITransaction[]>>;
 }) {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = dayjs();
+      const targetTime = dayjs(payment_proof_deadline);
+      const diff = targetTime.diff(now, 'second'); // Difference in seconds
+
+      if (diff <= 0) {
+        setTimeLeft('00:00:00');
+        return;
+      }
+
+      const hours = Math.floor(diff / 3600);
+      const minutes = Math.floor((diff % 3600) / 60);
+      const seconds = diff % 60;
+
+      setTimeLeft(
+        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`,
+      );
+    }, 1000); // Update every second
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [payment_proof_deadline]);
+
   const [eventTitle, setEventTitle] = useState('');
 
   useEffect(() => {
@@ -82,6 +109,16 @@ function MyTicketTableBody({
     <div className="flex flex-col sm:flex-row justify-between items-center gap-2 px-4 py-2 w-full bg-blue-200">
       <div className="sm:truncate sm:flex-1">{eventTitle}</div>
       <div className="flex gap-2 whitespace-nowrap">
+        <div
+          className={
+            ['PENDING_PAYMENT'].includes(status)
+              ? 'flex items-center py-1 px-2 rounded-sm gap-1 '
+              : 'hidden'
+          }
+        >
+          <div>{timeLeft ? timeLeft : 'Time Left'}</div>
+          <Image src={timerIcon} alt="timerIcon" className="h-4 w-4"></Image>
+        </div>
         <div className="py-1 px-2 rounded-sm text-white bg-secondaryText">
           {status}
         </div>
