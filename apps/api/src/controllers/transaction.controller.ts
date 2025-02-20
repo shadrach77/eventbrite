@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import prisma from '@/prisma';
 import { addDays, addHours } from 'date-fns';
 import { cloudinaryUpload } from '@/helpers/cloudinary';
@@ -462,5 +462,47 @@ export class TransactionController {
       message: `Successfully accepted transaction with transaction_id ${transaction_id}`,
       data: acceptedTransaction,
     });
+  }
+
+  async hardDeleteJunkTransactions(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      if (!req?.user?.id) {
+        return res.status(403).send({
+          message: `You cannot delete all your transactions because you don't have req.user.id as a JWT token.`,
+        });
+      }
+
+      const existingUser = await prisma.user.findUnique({
+        where: {
+          id: req.user.id,
+        },
+      });
+
+      if (!existingUser) {
+        return res.status(404).send({
+          message: `You cannot delete all your transactions because user with ID ${req.user.id} doesn't exist..`,
+        });
+      }
+
+      const hardDeletedTransactions = await prisma.transaction.deleteMany({
+        where: {
+          customer_id: req.user.id,
+          status: {
+            in: ['REJECTED', 'EXPIRED', 'CANCELED'],
+          },
+        },
+      });
+
+      res.status(201).send({
+        message: `Successfully hard deleted all unsuccessful transactions belonging to user with user_id ${req.user.id}`,
+        data: hardDeletedTransactions,
+      });
+    } catch (error) {
+      next(error);
+    }
   }
 }

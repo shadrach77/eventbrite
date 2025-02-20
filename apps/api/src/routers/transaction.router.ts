@@ -63,6 +63,12 @@ export class TransactionRouter {
       this.transactionController.updateMyTransaction,
     );
     this.router.delete(
+      '/my-transactions/junk/hard_delete',
+      verifyJwtMiddleware,
+      verifyCustomerRoleMiddleware,
+      this.transactionController.hardDeleteJunkTransactions,
+    );
+    this.router.delete(
       '/my-transactions/:transaction_id',
       verifyJwtMiddleware,
       verifyCustomerRoleMiddleware,

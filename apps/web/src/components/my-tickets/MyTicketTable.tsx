@@ -31,7 +31,7 @@ function MyTicketTable() {
 
   return (
     <div className="w-3/4">
-      <MyTicketTableHead />
+      <MyTicketTableHead setMyTransactions={setMyTransactions} />
       {myTransactions.map((transaction) => {
         return (
           <MyTicketTableBody
