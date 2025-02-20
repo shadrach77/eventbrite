@@ -116,6 +116,25 @@ function FilterEvents() {
         </form>
       </div>
       <div className="flex gap-4 mt-5 w-full mb-12 px-4">
+        <label>
+          <input
+            type="radio"
+            name="category"
+            value="0"
+            checked={selectedCategoryId === '0'}
+            onChange={() => setSelectedCategoryId('0')}
+            className="hidden"
+          />
+          <span
+            className={`px-4 py-2 rounded-full cursor-pointer transition ${
+              selectedCategoryId == ''
+                ? 'bg-blueAccent text-white shadow-md'
+                : 'bg-gray-200 text-gray-700'
+            }`}
+          >
+            {'all categories'}
+          </span>
+        </label>
         {allCategories.map((category: ICategory) => (
           <label key={category.id}>
             <input
