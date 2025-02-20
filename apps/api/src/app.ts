@@ -17,6 +17,7 @@ import { TicketRouter } from './routers/ticket.router';
 import { PromotionRouter } from './routers/promotion.router';
 import { TransactionRouter } from './routers/transaction.router';
 import { ReviewRouter } from './routers/review.router';
+import '@/cronjob/transactionCron'; //please don't remove import. this is to run cronjob
 
 export default class App {
   private app: Express;
