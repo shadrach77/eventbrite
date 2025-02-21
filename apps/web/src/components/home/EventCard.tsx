@@ -85,7 +85,7 @@ function EventCard({
   return (
     <Link
       href={`/events/${id}`}
-      className="flex flex-col w-72 bg-black hover:shadow-2xl shadow-secondaryText"
+      className="flex flex-col w-72  hover:shadow-2xl shadow-secondaryText"
     >
       <div className="w-full h-36">
         <Image
