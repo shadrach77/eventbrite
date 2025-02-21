@@ -26,6 +26,7 @@ function TransactionTableBody({
   const [timeLeft, setTimeLeft] = useState('');
 
   useEffect(() => {
+    console.log('acceptance_deadline =>', acceptance_deadline);
     const interval = setInterval(() => {
       const now = dayjs();
       const targetTime = dayjs(acceptance_deadline);

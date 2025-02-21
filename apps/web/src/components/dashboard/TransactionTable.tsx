@@ -29,7 +29,7 @@ function TransactionTable() {
             return String(transaction.status) === 'PENDING_ADMIN_CONFIRMATION';
           }),
         );
-        // setMyTransactions(response.data);
+        setMyTransactions(response.data);
         console.log(
           'session.user.authentication_token =>',
           session?.user.authentication_token,

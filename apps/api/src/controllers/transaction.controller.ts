@@ -237,8 +237,13 @@ export class TransactionController {
   }
 
   async updateMyTransaction(req: Request, res: Response) {
-    const { use_points_boolean, promotion_code, payment_proof, event_id } =
-      req.body;
+    const {
+      use_points_boolean,
+      promotion_code,
+      payment_proof,
+      event_id,
+      status,
+    } = req.body;
     const { transaction_id } = req.params;
 
     const transactionDetails = await prisma.transaction.findUnique({
@@ -251,6 +256,12 @@ export class TransactionController {
     if (!transactionDetails) {
       return res.status(404).send({
         message: `Couldn't update transaction with transaction_id ${transaction_id} because it either doesn't exist or doesn't belong to you`,
+      });
+    }
+
+    if (status !== 'PENDING_PAYMENT') {
+      return res.status(403).send({
+        message: `Cannot modify transaction with transaction_id ${transaction_id} because it's no longer pending_payment.`,
       });
     }
 
@@ -401,6 +412,12 @@ export class TransactionController {
       });
     }
 
+    if (transactionDetails.status !== 'PENDING_ADMIN_CONFIRMATION') {
+      return res.status(403).send({
+        message: `Cannot modify transaction with transaction_id ${transaction_id} because it's no longer pending_admin_confirmation.`,
+      });
+    }
+
     if (transactionDetails?.points_used) {
       await prisma.user.update({
         data: {
@@ -448,6 +465,18 @@ export class TransactionController {
     if (!transaction_id) {
       return res.status(403).send({
         message: `Couldn't accept transaction without 'transaction_id' as params.`,
+      });
+    }
+
+    const existingTransaction = await prisma.transaction.findUnique({
+      where: {
+        id: transaction_id,
+      },
+    });
+
+    if (existingTransaction?.status !== 'PENDING_ADMIN_CONFIRMATION') {
+      return res.status(403).send({
+        message: `Failed to accept transaction because transaction with transaction_id ${transaction_id} is no longer pending.`,
       });
     }
 
