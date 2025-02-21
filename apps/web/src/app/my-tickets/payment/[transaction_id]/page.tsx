@@ -30,6 +30,7 @@ const validationSchema = Yup.object({
 
 export default function Page({ params: { transaction_id } }: Props) {
   const { data: session, update } = useSession();
+  console.log('User points:', session?.user.points);
   const router = useRouter();
   const [disabled, setDisabled] = useState(false);
   const [disabledPromoFields, setDisabledPromoFields] = useState(false);
@@ -53,6 +54,13 @@ export default function Page({ params: { transaction_id } }: Props) {
     }
     getEvent();
   }, [transaction_id]);
+
+  useEffect(() => {
+    console.log(
+      'Updated Grand Total Before Points:',
+      updatedGrandTotalBeforePoints,
+    );
+  }, [updatedGrandTotalBeforePoints]);
 
   async function applyPromotionCode() {
     console.log(
@@ -212,7 +220,7 @@ export default function Page({ params: { transaction_id } }: Props) {
         const pictureUrl = await uploadTransactionPicture();
         await updateTransaction(pictureUrl);
         setTimeout(() => {
-          // router.push('/my-tickets');
+          router.push('/my-tickets');
         }, 2000);
       } catch (error) {
         setDisabled(false);
@@ -221,11 +229,22 @@ export default function Page({ params: { transaction_id } }: Props) {
   });
 
   useEffect(() => {
-    if (!event) return;
+    // if (!event) return;
+
+    console.log(
+      'useEffect triggered, use_points_boolean:',
+      formik.values.use_points_boolean,
+    );
+    console.log(
+      'Updated grand total before points:',
+      updatedGrandTotalBeforePoints,
+    );
+    console.log('User points:', session?.user.points);
+    console.log('Current updatedGrandTotal:', updatedGrandTotal);
 
     if (
       formik.values.use_points_boolean &&
-      session?.user.points &&
+      session?.user.points !== undefined &&
       typeof session?.user.points === 'number'
     ) {
       if (updatedGrandTotalBeforePoints - session?.user.points >= 0) {
@@ -239,7 +258,7 @@ export default function Page({ params: { transaction_id } }: Props) {
 
     if (
       !formik.values.use_points_boolean &&
-      session?.user.points &&
+      session?.user.points !== undefined &&
       typeof session?.user.points === 'number'
     ) {
       return setUpdatedGrandTotal(updatedGrandTotalBeforePoints);
@@ -275,6 +294,12 @@ export default function Page({ params: { transaction_id } }: Props) {
     getTicketTypeDetails();
   }, [event]);
 
+  console.log(
+    'updated Grand total before points =>',
+    updatedGrandTotalBeforePoints,
+  );
+  console.log('updated grand total after points =>', updatedGrandTotal);
+
   return (
     <div className="flex justify-center items-center w-full">
       <div className="w-full max-w-screen-md flex flex-col gap-8 m-12">
@@ -299,8 +324,8 @@ export default function Page({ params: { transaction_id } }: Props) {
               <button
                 className={
                   disabled
-                    ? 'text-white bg-[#963232] p-4 rounded-[12px]'
-                    : 'text-white bg-[#162D3A] p-4 rounded-[12px] whitespace-nowrap'
+                    ? 'text-white bg-secondaryOrange p-4 rounded-[12px]'
+                    : 'text-white bg-primaryOrange hover:bg-secondaryOrange p-4 rounded-[12px] whitespace-nowrap'
                 }
                 disabled={disabledPromoFields}
                 onClick={applyPromotionCode}
@@ -339,7 +364,10 @@ export default function Page({ params: { transaction_id } }: Props) {
               id="use_points_boolean"
               name="use_points_boolean"
               checked={formik.values.use_points_boolean}
-              onChange={formik.handleChange}
+              onChange={(e) => {
+                console.log('Checkbox changed:', e.target.checked); // Check if this logs
+                formik.setFieldValue('use_points_boolean', e.target.checked);
+              }}
             />
             <label htmlFor="use_points_boolean">Use Points</label>
           </div>
@@ -355,11 +383,6 @@ export default function Page({ params: { transaction_id } }: Props) {
             );
           })}
 
-          <div className="flex justify-between w-full rounded-[12px] border border-[#D4D7E3] p-2">
-            <div>ABC</div>
-            <div>quantity: 2s</div>
-          </div>
-
           <div className="text-2xl font-bold">
             Grand Total: {updatedGrandTotal.toLocaleString()}
           </div>
@@ -367,8 +390,8 @@ export default function Page({ params: { transaction_id } }: Props) {
           <button
             className={
               disabled
-                ? 'text-white bg-[#963232] p-4 rounded-[12px]'
-                : 'text-white bg-[#162D3A] p-4 rounded-[12px]'
+                ? 'text-white bg-secondaryOrange p-4 rounded-[12px]'
+                : 'text-white bg-primaryOrange hover:bg-secondaryOrange p-4 rounded-[12px]'
             }
             disabled={disabled}
           >

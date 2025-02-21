@@ -73,7 +73,9 @@ export default function Page() {
   return (
     <div className="w-full max-w-96 flex flex-col gap-12">
       <div>
-        <h1 className=" font-semibold text-3xl">Welcome Back</h1>
+        <h1 className=" font-semibold text-3xl text-primaryOrange">
+          Welcome Back
+        </h1>
         <p className="mt-4">
           {`Today is a new day. It's your day. You shape it. Sign in to start
           managing your projects.`}
@@ -166,7 +168,7 @@ export default function Page() {
             </div>
           </div>
 
-          <button className="text-white bg-[#162D3A] p-4 rounded-[12px]">
+          <button className="text-white bg-primaryOrange hover:bg-secondaryOrange p-4 rounded-[12px]">
             Register
           </button>
         </div>

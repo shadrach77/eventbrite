@@ -111,8 +111,10 @@ export default function Page({ params: { id } }: Props) {
     <div className="flex justify-center items-center w-full">
       <div className="w-full max-w-screen-md flex flex-col gap-8 m-12">
         <div>
-          <h1 className=" font-semibold text-3xl">Create A Promotion</h1>
-          <p className="mt-1">{`Please add in your ticket details.`}</p>
+          <h1 className=" font-semibold text-3xl text-primaryOrange">
+            Create A Promotion
+          </h1>
+          <p className="mt-1 text-secondaryOrange font-semibold">{`Please add in your promotion details.`}</p>
         </div>
 
         <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
@@ -185,12 +187,12 @@ export default function Page({ params: { id } }: Props) {
           <button
             className={
               disabled
-                ? 'text-white bg-[#963232] p-4 rounded-[12px]'
-                : 'text-white bg-[#162D3A] p-4 rounded-[12px]'
+                ? 'text-white bg-secondaryOrange p-4 rounded-[12px]'
+                : 'text-white bg-primaryOrange hover:bg-secondaryOrange p-4 rounded-[12px]'
             }
             disabled={disabled}
           >
-            Add Promotion Type
+            Create Promotion
           </button>
         </form>
 

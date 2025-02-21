@@ -72,7 +72,7 @@ function Page({ params: { event_id } }: Props) {
           alt={`${event?.title} event banner`}
           width={500}
           height={500}
-          className="w-screen max-w-[1200px] max-h-96 object-cover"
+          className="w-screen max-w-[1200px] max-h-96 object-cover mt-8"
         />
         <ScreenCenter>
           <div className="w-full p-8 relative lg:flex lg:justify-between">
@@ -140,7 +140,7 @@ function Page({ params: { event_id } }: Props) {
               <button
                 className={
                   checkoutTickets.length
-                    ? 'bg-primaryOrange w-full h-10 p-4 text-sm whitespace-nowrap flex items-center justify-center'
+                    ? 'bg-primaryOrange hover:bg-secondaryOrange text-white w-full h-10 p-4 text-sm whitespace-nowrap flex items-center justify-center'
                     : 'hidden'
                 }
                 onClick={checkout}
@@ -152,7 +152,7 @@ function Page({ params: { event_id } }: Props) {
                 className={
                   checkoutTickets.length
                     ? 'hidden'
-                    : 'bg-primaryOrange w-full h-10 p-4 text-sm whitespace-nowrap flex items-center justify-center'
+                    : 'bg-primaryOrange hover:bg-secondaryOrange text-white w-full h-10 p-4 text-sm whitespace-nowrap flex items-center justify-center'
                 }
               >
                 {'Select Tickets'}
@@ -167,7 +167,7 @@ function Page({ params: { event_id } }: Props) {
           className={
             checkoutTickets.length
               ? 'hidden'
-              : 'bg-primaryOrange w-full h-10 p-4 text-sm flex justify-center items-center'
+              : 'bg-primaryOrange hover:bg-secondaryOrange text-white w-full h-10 p-4 text-sm flex justify-center items-center'
           }
         >
           Buy Tickets
@@ -175,7 +175,7 @@ function Page({ params: { event_id } }: Props) {
         <button
           className={
             checkoutTickets.length
-              ? 'bg-primaryOrange w-full h-10 p-4 text-sm flex justify-center items-center'
+              ? 'bg-primaryOrange hover:bg-secondaryOrange text-white w-full h-10 p-4 text-sm flex justify-center items-center'
               : 'hidden'
           }
           onClick={checkout}

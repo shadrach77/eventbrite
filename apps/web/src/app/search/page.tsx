@@ -24,13 +24,15 @@ function page() {
 
   return (
     <ScreenCenter>
-      {filteredEvents.length ? (
-        filteredEvents.map((event: IEvent) => {
-          return <EventCard {...event} key={event.id} />;
-        })
-      ) : (
-        <div>{`'${query}' is not found. Try a different keyword.`}</div>
-      )}
+      <div className="flex flex-col md:flex-row md:justify-center gap-8 mb-36 px-4 flex-wrap mt-8">
+        {filteredEvents.length ? (
+          filteredEvents.map((event: IEvent) => {
+            return <EventCard {...event} key={event.id} />;
+          })
+        ) : (
+          <div>{`'${query}' is not found. Try a different keyword.`}</div>
+        )}
+      </div>
     </ScreenCenter>
   );
 }

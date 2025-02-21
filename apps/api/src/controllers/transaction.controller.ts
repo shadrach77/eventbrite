@@ -237,13 +237,8 @@ export class TransactionController {
   }
 
   async updateMyTransaction(req: Request, res: Response) {
-    const {
-      use_points_boolean,
-      promotion_code,
-      payment_proof,
-      event_id,
-      status,
-    } = req.body;
+    const { use_points_boolean, promotion_code, payment_proof, event_id } =
+      req.body;
     const { transaction_id } = req.params;
 
     const transactionDetails = await prisma.transaction.findUnique({
@@ -259,7 +254,7 @@ export class TransactionController {
       });
     }
 
-    if (status !== 'PENDING_PAYMENT') {
+    if (transactionDetails.status !== 'PENDING_PAYMENT') {
       return res.status(403).send({
         message: `Cannot modify transaction with transaction_id ${transaction_id} because it's no longer pending_payment.`,
       });

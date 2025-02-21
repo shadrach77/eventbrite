@@ -16,8 +16,8 @@ function page({ params: { review_id } }: { params: { review_id: string } }) {
     getReview();
   }, [review_id]);
   return (
-    <ScreenCenter>
-      <div className="flex flex-col gap-4">
+    <div className="flex justify-center items-center w-full">
+      <div className="w-full max-w-screen-md flex flex-col gap-6 m-12">
         <div className="text-3xl font-bold">Review Details</div>
         <div className="flex justify-between w-full rounded-[12px] border border-[#D4D7E3] p-3">
           <div>{'Transaction ID:'}</div>
@@ -43,7 +43,7 @@ function page({ params: { review_id } }: { params: { review_id: string } }) {
           Back to Event Details
         </Link>
       </div>
-    </ScreenCenter>
+    </div>
   );
 }
 

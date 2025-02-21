@@ -108,15 +108,17 @@ function page({ params: { transaction_id } }: Props) {
       <div className="w-full max-w-screen-md flex flex-col gap-8 m-12">
         <div className="flex flex-col gap-8 w-full">
           <div>
-            <h1 className=" font-semibold text-3xl">Add Review</h1>
-            <p className="mt-1">{`Please add in your review details.`}</p>
+            <h1 className=" font-semibold text-3xl text-primaryOrange">
+              Add Review
+            </h1>
+            <p className="mt-1 text-secondaryOrange font-semibold">{`Please add in your review details.`}</p>
           </div>
 
           <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
             <div
               className={
                 disabled
-                  ? 'flex flex-col gap-2 bg-yellow-200 px-4 py-2 rounded-md cursor-default'
+                  ? 'flex flex-col gap-2 bg-secondaryBackground font-semibold text-yellow-600 px-4 py-2 rounded-md cursor-default'
                   : 'hidden'
               }
             >
@@ -179,8 +181,8 @@ function page({ params: { transaction_id } }: Props) {
             <button
               className={
                 disabled
-                  ? 'text-white bg-[#963232] p-4 rounded-[12px] cursor-not-allowed'
-                  : 'text-white bg-[#162D3A] p-4 rounded-[12px]'
+                  ? 'text-white bg-secondaryOrange p-4 rounded-[12px] cursor-not-allowed'
+                  : 'text-white bg-primaryOrange hover:bg-secondaryOrange p-4 rounded-[12px]'
               }
               disabled={disabled}
               type="submit"

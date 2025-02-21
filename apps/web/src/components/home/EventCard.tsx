@@ -97,10 +97,8 @@ function EventCard({
         />
       </div>
 
-      <div className="flex flex-col gap-2 w-full bg-yellow-300 p-3">
-        <div className="w-full bg-blue-200 text-lg text-secondaryText">
-          {title}
-        </div>
+      <div className="flex flex-col gap-2 w-ful p-3 bg-white">
+        <div className="w-full text-lg text-secondaryText">{title}</div>
         <div className="w-full text-sm text-secondaryText">
           {dayjs(start_date).format('MMM DD, YYYY')} {'- '}
           {dayjs(end_date).format('MMM DD, YYYY')}

@@ -43,8 +43,8 @@ function MyTicketTableHead({
 
   return (
     <div className="flex flex-row justify-between items-center px-4 py-2 w-full bg-blue-400">
-      <div className="text-secondaryText">My Tickets</div>
-      <div className="flex gap-2">
+      <div className="text-secondaryTextß">My Tickets</div>
+      <div className="flex gap-2 w-auto">
         {' '}
         <button
           onClick={deleteJunkTickets}
@@ -60,9 +60,8 @@ function MyTicketTableHead({
           <div>Browse For Tickets</div>
           <Image src={browseIcon} alt="plus icon" className="h-5 w-5"></Image>
         </Link>
+        <Toaster richColors></Toaster>
       </div>
-
-      <Toaster richColors></Toaster>
     </div>
   );
 }

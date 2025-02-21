@@ -65,28 +65,28 @@ function TicketCard({
         <div className="text-sm">{price}</div>
       </div>
       <div>
-        <div className="flex justify-center items-baseline gap-2 bg-green-200">
+        <div className="flex justify-center items-baseline gap-2">
           <button
-            className="bg-blueAccent h-8 w-8 disabled:opacity-50"
+            className="bg-blueAccent h-8 w-8 disabled:opacity-50 rounded-md"
             disabled={ticketAmount === 0}
             onClick={reduceOneTicket}
           >
             -
           </button>
 
-          <div className="mb-4 text-lg min-w-8 text-center bg-blue-100">
+          <div className="mb-4 text-lg min-w-8 text-center ">
             {ticketAmount}
           </div>
           <button
             disabled={ticketAmount === available_seats}
-            className="bg-blueAccent h-8 w-8 disabled:opacity-50"
+            className="bg-blueAccent h-8 w-8 disabled:opacity-50 rounded-md"
             onClick={addOneTicket}
           >
             +
           </button>
         </div>
 
-        <div className="text-xs">
+        <div className="text-xs text-blueAccent">
           {dayjs(start_date).format('DD MMM, YYYY')} -{' '}
           {dayjs(end_date).format('DD MMM, YYYY')}
         </div>

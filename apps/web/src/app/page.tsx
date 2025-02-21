@@ -10,9 +10,11 @@ export default function Home() {
   const { data: session, status } = useSession();
 
   return (
-    <ScreenCenter>
-      <Carousel />
-      <FilterEvents />
-    </ScreenCenter>
+    <>
+      <ScreenCenter>
+        <Carousel />
+        <FilterEvents />
+      </ScreenCenter>
+    </>
   );
 }

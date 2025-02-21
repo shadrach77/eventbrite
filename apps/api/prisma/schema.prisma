@@ -44,7 +44,7 @@ model User {
 model Event {
   id             String   @id @default(uuid())
   organizer_id   String
-  organizer      User     @relation(fields: [organizer_id], references: [id])
+  organizer      User     @relation(fields: [organizer_id], references: [id], onDelete: Cascade)
   category_id    String
   category       Category @relation(fields: [category_id], references: [id])
   location_id    String
@@ -134,9 +134,9 @@ model Review {
 model Transaction {
   id                     String      @id @default(uuid())
   event_id               String
-  event                  Event       @relation(fields: [event_id], references: [id])
+  event                  Event       @relation(fields: [event_id], references: [id], onDelete: Cascade)
   customer_id            String
-  customer               User        @relation(fields: [customer_id], references: [id])
+  customer               User        @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   status                 StatusLabel @default(PENDING_PAYMENT)
   points_used            Int         @default(0)
   promotion_id           String?
